@@ -14,6 +14,8 @@ export interface SettingsData {
   captureShortcut: string;
   /** Light/dark mode: light / dark / follow system */
   theme: ThemeMode;
+  /** UI language (interface text), independent of the translation language pair */
+  locale: "zh" | "en";
 }
 
 const SETTINGS_KEY = "yi-settings";
@@ -26,6 +28,11 @@ const DEFAULTS: SettingsData = {
   selectionEnabled: true,
   captureShortcut: "CommandOrControl+Y",
   theme: "system",
+  locale:
+    typeof navigator !== "undefined" &&
+    navigator.language.toLowerCase().startsWith("zh")
+      ? "zh"
+      : "en",
 };
 
 export const SettingsManager = {

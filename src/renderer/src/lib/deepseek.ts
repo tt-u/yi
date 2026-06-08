@@ -1,3 +1,4 @@
+import { t } from "./i18n";
 import { getLanguage } from "./languages";
 import type { DeepSeekModel } from "./settings";
 
@@ -14,13 +15,11 @@ export class DeepSeekError extends Error {
 }
 
 function friendlyError(status: number, raw: string): string {
-  if (status === 401) return "Invalid API key. Please check it in Settings.";
-  if (status === 402)
-    return "Insufficient balance. Please top up on the DeepSeek platform.";
-  if (status === 429) return "Too many requests. Please try again later.";
-  if (status >= 500)
-    return "DeepSeek service is temporarily unavailable. Please try again later.";
-  return raw || `Request failed (HTTP ${status})`;
+  if (status === 401) return t("deepseek.401");
+  if (status === 402) return t("deepseek.402");
+  if (status === 429) return t("deepseek.429");
+  if (status >= 500) return t("deepseek.5xx");
+  return raw || t("deepseek.failed", { status });
 }
 
 export interface TranslateOptions {
@@ -75,7 +74,7 @@ async function streamChat(options: {
   }
 
   if (!res.body) {
-    throw new DeepSeekError("Response does not support streaming");
+    throw new DeepSeekError(t("deepseek.stream"));
   }
 
   const reader = res.body.getReader();

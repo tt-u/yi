@@ -3,7 +3,10 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { DeepSeekError, translate } from "@/lib/deepseek";
+import { useT } from "@/lib/i18n";
 import { SettingsManager } from "@/lib/settings";
+
+const PASTE_KEY = window.api?.platform === "darwin" ? "⌘V" : "Ctrl+V";
 
 type ViewState =
   | { kind: "empty" }
@@ -13,6 +16,7 @@ type ViewState =
   | { kind: "error"; message: string; needsAccessibility?: boolean };
 
 export default function Page() {
+  const t = useT();
   const [view, setView] = useState<ViewState>({ kind: "empty" });
   const abortRef = useRef<AbortController | null>(null);
   const cardRef = useRef<HTMLDivElement>(null);
@@ -45,49 +49,52 @@ export default function Page() {
     return () => ro.disconnect();
   });
 
-  const runQuery = useCallback(async (text: string) => {
-    abortRef.current?.abort();
-    const controller = new AbortController();
-    abortRef.current = controller;
+  const runQuery = useCallback(
+    async (text: string) => {
+      abortRef.current?.abort();
+      const controller = new AbortController();
+      abortRef.current = controller;
 
-    const settings = SettingsManager.load();
-    if (!settings.deepseekApiKey) {
-      setView({ kind: "no-key" });
-      return;
-    }
+      const settings = SettingsManager.load();
+      if (!settings.deepseekApiKey) {
+        setView({ kind: "no-key" });
+        return;
+      }
 
-    setView({ kind: "loading" });
-    try {
-      const full = await translate({
-        apiKey: settings.deepseekApiKey,
-        model: settings.model,
-        text,
-        langA: settings.langA,
-        langB: settings.langB,
-        signal: controller.signal,
-        onDelta: (_, partial) =>
-          setView({
-            kind: "result",
-            text: partial,
-            streaming: true,
-            copied: false,
-          }),
-      });
-      if (controller.signal.aborted) return;
-      // Write the translation to the clipboard so the user can ⌘V to replace the original in the source app
-      if (full) window.api.clipboard.write(full);
-      setView({ kind: "result", text: full, streaming: false, copied: true });
-    } catch (err) {
-      if (controller.signal.aborted) return;
-      setView({
-        kind: "error",
-        message:
-          err instanceof DeepSeekError
-            ? err.message
-            : "Network error. Please try again.",
-      });
-    }
-  }, []);
+      setView({ kind: "loading" });
+      try {
+        const full = await translate({
+          apiKey: settings.deepseekApiKey,
+          model: settings.model,
+          text,
+          langA: settings.langA,
+          langB: settings.langB,
+          signal: controller.signal,
+          onDelta: (_, partial) =>
+            setView({
+              kind: "result",
+              text: partial,
+              streaming: true,
+              copied: false,
+            }),
+        });
+        if (controller.signal.aborted) return;
+        // Write the translation to the clipboard so the user can ⌘V to replace the original in the source app
+        if (full) window.api.clipboard.write(full);
+        setView({ kind: "result", text: full, streaming: false, copied: true });
+      } catch (err) {
+        if (controller.signal.aborted) return;
+        setView({
+          kind: "error",
+          message:
+            err instanceof DeepSeekError
+              ? err.message
+              : t("popup.networkError"),
+        });
+      }
+    },
+    [t],
+  );
 
   // Receive capture payloads delivered by the main process
   useEffect(() => {
@@ -99,14 +106,14 @@ export default function Page() {
       } else {
         setView({
           kind: "error",
-          message: payload.message,
-          needsAccessibility: payload.needsAccessibility,
+          message: t(`error.${payload.code}`),
+          needsAccessibility: payload.code === "no-accessibility",
         });
       }
     });
     window.api.popup.ready();
     return unsubscribe;
-  }, [runQuery]);
+  }, [runQuery, t]);
 
   return (
     // p-3 leaves room for the shadow (window is transparent, shadow drawn inside); ref on the outermost element to measure height including padding
@@ -115,7 +122,7 @@ export default function Page() {
         {/* Close button */}
         <button
           type="button"
-          aria-label="Close"
+          aria-label={t("popup.close")}
           onClick={() => window.api.popup.hide()}
           className="absolute top-1.5 right-1.5 z-10 rounded-md p-1 text-muted-foreground/50 transition-colors hover:bg-accent hover:text-foreground"
         >
@@ -124,21 +131,21 @@ export default function Page() {
 
         {view.kind === "empty" && (
           <p className="px-5 py-4 text-sm text-muted-foreground">
-            Select text to capture and translate
+            {t("popup.empty")}
           </p>
         )}
 
         {view.kind === "loading" && (
           <div className="flex items-center gap-3 px-5 py-4 text-sm text-muted-foreground">
             <Loader2 className="size-4 animate-spin text-primary" />
-            Translating
+            {t("popup.translating")}
           </div>
         )}
 
         {view.kind === "no-key" && (
           <div className="flex items-center justify-between gap-3 px-5 py-4">
             <span className="text-sm text-muted-foreground">
-              No API key configured yet
+              {t("popup.noKey")}
             </span>
             <Button
               size="sm"
@@ -147,7 +154,7 @@ export default function Page() {
               onClick={() => window.api.openMain()}
             >
               <Settings2 className="size-3.5" />
-              Settings
+              {t("popup.settings")}
             </Button>
           </div>
         )}
@@ -162,7 +169,7 @@ export default function Page() {
                 className="h-7 shrink-0 px-2.5"
                 onClick={() => void window.api.accessibility.request()}
               >
-                Grant access
+                {t("a11y.grant")}
               </Button>
             )}
           </div>
@@ -182,7 +189,7 @@ export default function Page() {
               {view.copied && (
                 <div className="mt-2.5 flex items-center gap-1 text-xs font-medium text-primary">
                   <Check className="size-3" />
-                  Copied. ⌘V to replace
+                  {t("popup.copied", { key: PASTE_KEY })}
                 </div>
               )}
             </div>

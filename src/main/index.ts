@@ -20,7 +20,7 @@ import {
   registerToggleMainShortcut,
   unregisterShortcuts,
 } from "./shortcuts";
-import { createTray } from "./tray";
+import { createTray, setTrayLocale } from "./tray";
 
 let mainWindow: BrowserWindow | null = null;
 /** True when quitting via the tray menu; distinguishes from "close to tray" on Windows. */
@@ -32,6 +32,9 @@ function createMainWindow(): BrowserWindow {
     height: 760,
     show: false,
     autoHideMenuBar: true,
+    // macOS: hide the title bar and let the background extend to the top
+    // (no title text); keep the traffic-light buttons inset.
+    titleBarStyle: process.platform === "darwin" ? "hiddenInset" : "default",
     webPreferences: {
       preload: join(__dirname, "../preload/index.js"),
       sandbox: false,
@@ -101,11 +104,7 @@ async function handleCaptureSelection(): Promise<void> {
     const text = (await captureSelection()).trim();
     console.log(`[capture] len=${text.length} took=${Date.now() - t0}ms`);
     if (!text) {
-      showPopup({
-        kind: "error",
-        message:
-          "No text selected. Select some text first, then press the shortcut.",
-      });
+      showPopup({ kind: "error", code: "no-selection" });
       return;
     }
     // Defensive truncation to avoid huge accidental selections.
@@ -113,14 +112,10 @@ async function handleCaptureSelection(): Promise<void> {
   } catch (error) {
     console.log(`[capture] failed: ${String(error)}`);
     if (error instanceof SelectionError) {
-      showPopup({
-        kind: "error",
-        message: error.message,
-        needsAccessibility: error.needsAccessibility,
-      });
+      showPopup({ kind: "error", code: error.code });
     } else {
       // Fallback: the window is already in skeleton state, so it must resolve.
-      showPopup({ kind: "error", message: "Lookup failed, please try again." });
+      showPopup({ kind: "error", code: "lookup-failed" });
     }
   }
 }
@@ -146,6 +141,10 @@ if (!app.requestSingleInstanceLock()) {
     // Renderer IPC
     setupPopupIpc();
     ipcMain.on("app:open-main", () => showMainWindow());
+    // The renderer reports its UI language so the tray menu can match it.
+    ipcMain.on("app:set-locale", (_event, locale: string) =>
+      setTrayLocale(locale),
+    );
 
     // E2E smoke-test hooks: drive the popup pipeline directly (window/IPC/render/translate).
     if (process.env["ATHENA_E2E"] === "1") {

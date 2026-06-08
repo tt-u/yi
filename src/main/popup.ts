@@ -9,11 +9,18 @@ const POPUP_MAX_HEIGHT = 720;
 /** Idle time before the result auto-hides */
 const AUTO_HIDE_MS = 6000;
 
-/** Payload received by the popup: capture in progress / captured text / error message */
+/** Error kinds shown in the popup; the renderer localizes them. */
+export type PopupErrorCode =
+  | "no-selection"
+  | "no-accessibility"
+  | "read-failed"
+  | "lookup-failed";
+
+/** Payload received by the popup: in progress / captured text / error */
 export type PopupPayload =
   | { kind: "pending" }
   | { kind: "text"; text: string }
-  | { kind: "error"; message: string; needsAccessibility?: boolean };
+  | { kind: "error"; code: PopupErrorCode };
 
 let popupWindow: BrowserWindow | null = null;
 let rendererReady = false;

@@ -14,20 +14,19 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { DeepSeekError, testApiKey } from "@/lib/deepseek";
+import { getLocale, type Locale, setLocale, useT } from "@/lib/i18n";
 import { LANGUAGES } from "@/lib/languages";
 import { SettingsManager } from "@/lib/settings";
 import { applyTheme, type ThemeMode } from "@/lib/theme";
 
 import type { SelectionStatus } from "../../../../preload";
 
-const THEME_OPTIONS: { value: ThemeMode; label: string; icon: typeof Sun }[] = [
-  { value: "light", label: "Light", icon: Sun },
-  { value: "dark", label: "Dark", icon: Moon },
-  { value: "system", label: "System", icon: Monitor },
-];
-
 const IS_MAC = window.api?.platform === "darwin";
 const MOD = IS_MAC ? "⌘⇧" : "Ctrl+Shift+";
+const PASTE_KEY = IS_MAC ? "⌘V" : "Ctrl+V";
+
+const THEME_CYCLE: ThemeMode[] = ["light", "dark", "system"];
+const THEME_ICON = { light: Sun, dark: Moon, system: Monitor } as const;
 
 /** accelerator -> human-readable key text */
 function accelToDisplay(accel: string): string {
@@ -40,12 +39,46 @@ function accelToDisplay(accel: string): string {
   return accel.replace("CommandOrControl", "Ctrl");
 }
 
-const SHORTCUT_OPTIONS = [
-  { accel: "CommandOrControl+Y", warn: "Maps to “Redo” in some apps" },
-  { accel: "CommandOrControl+T", warn: "Overrides “New Tab” in browsers" },
-  { accel: "CommandOrControl+Shift+D", warn: "" },
-  { accel: "F9", warn: "" },
-];
+/** Map a KeyboardEvent's main (non-modifier) key to an Electron accelerator token */
+function mainKey(key: string): string | null {
+  if (["Control", "Meta", "Alt", "Shift", "Escape"].includes(key)) return null;
+  if (/^[a-z]$/i.test(key)) return key.toUpperCase();
+  if (/^[0-9]$/.test(key)) return key;
+  if (/^F\d{1,2}$/.test(key)) return key;
+  const map: Record<string, string> = {
+    ArrowUp: "Up",
+    ArrowDown: "Down",
+    ArrowLeft: "Left",
+    ArrowRight: "Right",
+    " ": "Space",
+    Enter: "Return",
+    Tab: "Tab",
+  };
+  if (map[key]) return map[key];
+  return key.length === 1 ? key.toUpperCase() : null;
+}
+
+/** Build an Electron accelerator from a key event; returns null until a valid combo is pressed. */
+function buildAccelerator(e: KeyboardEvent): string | null {
+  const mods: string[] = [];
+  if (IS_MAC) {
+    if (e.metaKey) mods.push("CommandOrControl");
+    if (e.ctrlKey) mods.push("Control");
+  } else {
+    if (e.ctrlKey) mods.push("CommandOrControl");
+    if (e.metaKey) mods.push("Super");
+  }
+  if (e.altKey) mods.push("Alt");
+  if (e.shiftKey) mods.push("Shift");
+
+  const main = mainKey(e.key);
+  if (!main) return null;
+  // Require a modifier unless it's a function key, so a bare letter doesn't
+  // swallow every keystroke system-wide.
+  const isFn = /^F\d{1,2}$/.test(main);
+  if (mods.length === 0 && !isFn) return null;
+  return [...mods, main].join("+");
+}
 
 type TestState =
   | { kind: "idle" }
@@ -96,32 +129,64 @@ function Section({
 }
 
 export default function Page() {
+  const t = useT();
   const [settings, setSettings] = useState(() => SettingsManager.load());
   const [showKey, setShowKey] = useState(false);
   const [test, setTest] = useState<TestState>({ kind: "idle" });
   const [selStatus, setSelStatus] = useState<SelectionStatus | null>(null);
+  const [recording, setRecording] = useState(false);
 
   const refreshStatus = () => {
     void window.api?.selection.getStatus().then(setSelStatus);
   };
   useEffect(refreshStatus, []);
 
+  // Tell the main process the UI language on mount, so the tray menu matches.
+  useEffect(() => {
+    window.api?.setLocale?.(getLocale());
+  }, []);
+
   // Any change is persisted automatically; no manual save needed
   useEffect(() => {
     SettingsManager.save(settings);
   }, [settings]);
 
+  // While recording, capture the next valid key combo as the new shortcut.
+  useEffect(() => {
+    if (!recording) return;
+    const onKey = (e: KeyboardEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      if (e.key === "Escape") {
+        setRecording(false);
+        return;
+      }
+      const accel = buildAccelerator(e);
+      if (!accel) return; // wait for a valid combo (needs a modifier or function key)
+      setRecording(false);
+      setSettings((s) => ({ ...s, captureShortcut: accel }));
+      void window.api.selection.setShortcut(accel).then(setSelStatus);
+    };
+    window.addEventListener("keydown", onKey, true);
+    return () => window.removeEventListener("keydown", onKey, true);
+  }, [recording]);
+
   const setLangPair = (langA: string, langB: string) =>
     setSettings((s) => ({ ...s, langA, langB }));
 
-  const changeTheme = (theme: ThemeMode) => {
-    setSettings((s) => ({ ...s, theme }));
-    applyTheme(theme);
+  const cycleTheme = () => {
+    const next =
+      THEME_CYCLE[
+        (THEME_CYCLE.indexOf(settings.theme) + 1) % THEME_CYCLE.length
+      ];
+    setSettings((s) => ({ ...s, theme: next }));
+    applyTheme(next);
   };
 
-  const changeShortcut = async (accel: string) => {
-    setSettings((s) => ({ ...s, captureShortcut: accel }));
-    setSelStatus(await window.api.selection.setShortcut(accel));
+  const changeLocale = (next: Locale) => {
+    setSettings((s) => ({ ...s, locale: next }));
+    setLocale(next);
+    window.api?.setLocale?.(next);
   };
 
   const handleTest = async () => {
@@ -134,60 +199,52 @@ export default function Page() {
       setTest({
         kind: "fail",
         message:
-          err instanceof DeepSeekError
-            ? err.message
-            : "Network error: unable to connect",
+          err instanceof DeepSeekError ? err.message : t("apiKey.networkError"),
       });
     }
   };
 
-  const shortcutWarn = SHORTCUT_OPTIONS.find(
-    (o) => o.accel === settings.captureShortcut,
-  )?.warn;
+  const ThemeIcon = THEME_ICON[settings.theme];
+  const locale = getLocale();
 
   return (
     <div className="mx-auto flex max-w-[520px] flex-col gap-7 px-6 py-8">
-      {/* Title */}
-      <header className="flex flex-col gap-1">
-        <h1 className="text-2xl font-semibold tracking-tight">Yi</h1>
-        <p className="text-sm text-muted-foreground">
-          DeepSeek capture translation · Settings
-        </p>
+      {/* Title + compact theme / language icons */}
+      <header className="flex items-start justify-between gap-3">
+        <div className="flex flex-col gap-1">
+          <h1 className="text-2xl font-semibold tracking-tight">Yi</h1>
+          <p className="text-sm text-muted-foreground">{t("app.tagline")}</p>
+        </div>
+        <div className="flex shrink-0 items-center gap-1">
+          <button
+            type="button"
+            onClick={cycleTheme}
+            title={t(`theme.${settings.theme}`)}
+            aria-label={t(`theme.${settings.theme}`)}
+            className="flex size-9 items-center justify-center rounded-lg border text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+          >
+            <ThemeIcon className="size-4" />
+          </button>
+          <button
+            type="button"
+            onClick={() => changeLocale(locale === "zh" ? "en" : "zh")}
+            title={t("locale.switch")}
+            aria-label={t("locale.switch")}
+            className="flex size-9 items-center justify-center rounded-lg border text-xs font-semibold text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+          >
+            {locale === "zh" ? "中" : "EN"}
+          </button>
+        </div>
       </header>
 
-      {/* Appearance */}
-      <Section title="Appearance">
-        <div className="grid grid-cols-3 gap-2">
-          {THEME_OPTIONS.map((opt) => {
-            const Icon = opt.icon;
-            const selected = settings.theme === opt.value;
-            return (
-              <button
-                key={opt.value}
-                type="button"
-                onClick={() => changeTheme(opt.value)}
-                className={`flex items-center justify-center gap-2 rounded-lg border px-3 py-2 text-sm transition-colors ${
-                  selected
-                    ? "border-primary bg-primary/5 ring-1 ring-primary"
-                    : "hover:bg-accent"
-                }`}
-              >
-                <Icon className="size-4" />
-                {opt.label}
-              </button>
-            );
-          })}
-        </div>
-      </Section>
-
       {/* API */}
-      <Section title="DeepSeek API">
+      <Section title={t("section.api")}>
         <div className="flex flex-col gap-2">
           <div className="flex gap-2">
             <div className="relative flex-1">
               <Input
                 type={showKey ? "text" : "password"}
-                placeholder="API Key (sk-...)"
+                placeholder={t("apiKey.placeholder")}
                 autoComplete="off"
                 spellCheck={false}
                 value={settings.deepseekApiKey}
@@ -199,7 +256,7 @@ export default function Page() {
               />
               <button
                 type="button"
-                aria-label={showKey ? "Hide key" : "Show key"}
+                aria-label={showKey ? t("apiKey.hide") : t("apiKey.show")}
                 onClick={() => setShowKey((v) => !v)}
                 className="absolute top-1/2 right-2.5 -translate-y-1/2 text-muted-foreground transition-colors hover:text-foreground"
               >
@@ -219,13 +276,13 @@ export default function Page() {
               {test.kind === "testing" && (
                 <Loader2 className="size-4 animate-spin" />
               )}
-              Test
+              {t("apiKey.test")}
             </Button>
           </div>
           {test.kind === "ok" && (
             <p className="flex items-center gap-1.5 text-xs text-primary">
               <Check className="size-3.5" />
-              Connected
+              {t("apiKey.connected")}
             </p>
           )}
           {test.kind === "fail" && (
@@ -233,7 +290,7 @@ export default function Page() {
           )}
           {test.kind === "idle" && (
             <p className="text-xs text-muted-foreground">
-              Create one at{" "}
+              {t("apiKey.hintBefore")}{" "}
               <a
                 href="https://platform.deepseek.com/api_keys"
                 target="_blank"
@@ -242,18 +299,17 @@ export default function Page() {
               >
                 platform.deepseek.com
               </a>
-              . The key is stored only on this device.
+              {t("apiKey.hintAfter")}
             </p>
           )}
         </div>
       </Section>
 
       {/* Languages */}
-      <Section title="Languages">
-        {/* Language pair */}
+      <Section title={t("section.languages")}>
         <div className="flex items-center gap-2">
           <Select
-            ariaLabel="Source language"
+            ariaLabel={t("lang.source")}
             value={settings.langA}
             onChange={(code) => setLangPair(code, settings.langB)}
             className="flex-1"
@@ -270,14 +326,14 @@ export default function Page() {
           </Select>
           <button
             type="button"
-            aria-label="Swap languages"
+            aria-label={t("lang.swap")}
             onClick={() => setLangPair(settings.langB, settings.langA)}
             className="flex size-9 shrink-0 items-center justify-center rounded-lg border text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
           >
             <ArrowLeftRight className="size-4" />
           </button>
           <Select
-            ariaLabel="Target language"
+            ariaLabel={t("lang.target")}
             value={settings.langB}
             onChange={(code) => setLangPair(settings.langA, code)}
             className="flex-1"
@@ -293,53 +349,47 @@ export default function Page() {
             ))}
           </Select>
         </div>
-        <p className="text-xs text-muted-foreground">
-          Detects which language the input is in and translates it to the other
-        </p>
+        <p className="text-xs text-muted-foreground">{t("lang.hint")}</p>
       </Section>
 
-      {/* Capture */}
-      <Section title="Capture & Translate">
-        {/* Shortcut */}
+      {/* Shortcut */}
+      <Section title={t("section.shortcut")}>
         <div className="flex items-center justify-between gap-4">
           <div className="min-w-0">
-            <p className="text-sm font-medium">Capture shortcut</p>
-            {selStatus && !selStatus.registered ? (
-              <p className="text-xs text-destructive">
-                Shortcut already in use, please pick another
-              </p>
-            ) : shortcutWarn ? (
-              <p className="text-xs text-destructive">Note: {shortcutWarn}</p>
+            <p className="text-sm font-medium">{t("shortcut.label")}</p>
+            {recording ? (
+              <p className="text-xs text-primary">{t("shortcut.recording")}</p>
+            ) : selStatus && !selStatus.registered ? (
+              <p className="text-xs text-destructive">{t("shortcut.inUse")}</p>
             ) : (
               <p className="text-xs text-muted-foreground">
-                Select text, then press this key to translate
+                {t("shortcut.hint")}
               </p>
             )}
           </div>
-          <Select
-            ariaLabel="Capture shortcut"
-            value={settings.captureShortcut}
-            onChange={(v) => void changeShortcut(v)}
-            className="shrink-0 font-mono"
+          <button
+            type="button"
+            onClick={() => setRecording((r) => !r)}
+            aria-label={t("shortcut.label")}
+            className={`flex h-9 min-w-[88px] shrink-0 items-center justify-center rounded-lg border px-3 font-mono text-sm transition-colors ${
+              recording
+                ? "border-primary text-primary ring-1 ring-primary"
+                : "hover:bg-accent"
+            }`}
           >
-            {SHORTCUT_OPTIONS.map((o) => (
-              <option key={o.accel} value={o.accel}>
-                {accelToDisplay(o.accel)}
-                {o.warn ? " (conflict)" : ""}
-              </option>
-            ))}
-          </Select>
+            {recording ? "…" : accelToDisplay(settings.captureShortcut)}
+          </button>
         </div>
 
         {/* macOS permission */}
         {IS_MAC && selStatus && (
           <div className="flex items-center justify-between gap-4">
             <div className="min-w-0">
-              <p className="text-sm font-medium">Accessibility permission</p>
+              <p className="text-sm font-medium">{t("a11y.title")}</p>
               <p className="text-xs text-muted-foreground">
                 {selStatus.accessibilityOk
-                  ? "Granted"
-                  : "Required to capture text (System Settings → Privacy & Security)"}
+                  ? t("a11y.granted")
+                  : t("a11y.required")}
               </p>
             </div>
             {selStatus.accessibilityOk ? (
@@ -352,13 +402,13 @@ export default function Page() {
                   className="h-8"
                   onClick={() => void window.api.accessibility.request()}
                 >
-                  Grant access
+                  {t("a11y.grant")}
                 </Button>
                 <Button
                   size="sm"
                   variant="ghost"
                   className="h-8 w-8 p-0"
-                  aria-label="Refresh permission status"
+                  aria-label={t("a11y.refresh")}
                   onClick={refreshStatus}
                 >
                   <RefreshCw className="size-4" />
@@ -370,23 +420,22 @@ export default function Page() {
 
         {/* Usage hint */}
         <div className="rounded-lg bg-muted/50 px-3.5 py-3 text-xs leading-relaxed text-muted-foreground">
-          The translation is copied automatically. Back in the original app,
-          press{" "}
+          {t("usage.before")}{" "}
           <kbd className="rounded border bg-background px-1 font-mono text-foreground">
-            {IS_MAC ? "⌘V" : "Ctrl+V"}
+            {PASTE_KEY}
           </kbd>{" "}
-          to replace the text.
+          {t("usage.between")}
           <kbd className="ml-1 rounded border bg-background px-1 font-mono text-foreground">
             {MOD}M
           </kbd>{" "}
-          shows / hides the main window.
+          {t("usage.after")}
         </div>
       </Section>
 
       {/* Changes saved automatically */}
       <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
         <Check className="size-3.5 text-primary" />
-        Changes are saved automatically
+        {t("settings.saved")}
       </p>
     </div>
   );

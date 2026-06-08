@@ -1,10 +1,17 @@
 import { electronAPI } from "@electron-toolkit/preload";
 import { clipboard, contextBridge, ipcRenderer } from "electron";
 
+/** Error kinds shown in the popup; the renderer localizes them. */
+export type PopupErrorCode =
+  | "no-selection"
+  | "no-accessibility"
+  | "read-failed"
+  | "lookup-failed";
+
 export type PopupPayload =
   | { kind: "pending" }
   | { kind: "text"; text: string }
-  | { kind: "error"; message: string; needsAccessibility?: boolean };
+  | { kind: "error"; code: PopupErrorCode };
 
 export interface SelectionStatus {
   /** Whether the global shortcut is currently registered */
@@ -45,6 +52,9 @@ const api = {
 
   /** Open the main window (optionally with a route path, e.g. /settings) */
   openMain: (path?: string) => ipcRenderer.send("app:open-main", path),
+
+  /** Tell the main process the UI language so the tray menu matches */
+  setLocale: (locale: string) => ipcRenderer.send("app:set-locale", locale),
 
   /** Main window subscribes to navigation requests (triggered by entries like the popup's "Open main window") */
   onNavigate: (callback: (path: string) => void) => {

@@ -11,14 +11,16 @@ const SENTINEL = " yi:no-selection ";
 
 const delay = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
-export class SelectionError extends Error {
-  /** macOS is missing Accessibility permission */
-  needsAccessibility: boolean;
+/** Error codes for selection capture; the renderer localizes them. */
+export type SelectionErrorCode = "no-accessibility" | "read-failed";
 
-  constructor(message: string, needsAccessibility = false) {
-    super(message);
+export class SelectionError extends Error {
+  code: SelectionErrorCode;
+
+  constructor(code: SelectionErrorCode) {
+    super(code);
     this.name = "SelectionError";
-    this.needsAccessibility = needsAccessibility;
+    this.code = code;
   }
 }
 
@@ -53,10 +55,7 @@ async function simulateKey(key: string): Promise<void> {
  */
 export async function captureSelection(): Promise<string> {
   if (process.platform === "darwin" && !checkAccessibility(false)) {
-    throw new SelectionError(
-      "Accessibility permission is required to capture text. Please grant it in System Settings.",
-      true,
-    );
+    throw new SelectionError("no-accessibility");
   }
 
   const previous = clipboard.readText();
@@ -74,12 +73,9 @@ export async function captureSelection(): Promise<string> {
   } catch (error) {
     const message = String(error);
     if (message.includes("assistive") || message.includes("1002")) {
-      throw new SelectionError(
-        "Accessibility permission is required to capture text. Please grant it in System Settings.",
-        true,
-      );
+      throw new SelectionError("no-accessibility");
     }
-    throw new SelectionError("Failed to capture text. Please try again.");
+    throw new SelectionError("read-failed");
   } finally {
     clipboard.writeText(previous);
   }
