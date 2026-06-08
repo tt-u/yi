@@ -1,0 +1,121 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Yi symbolic app icon</title>
+  <desc id="desc">A minimalist rounded-square app icon with a luminous abstract sprout symbol, representing growth, connection, and clarity.</desc>
+  <defs>
+    <linearGradient id="bgGradient" x1="151" y1="905" x2="881" y2="138" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#061C66"/>
+      <stop offset="0.38" stop-color="#0A328C"/>
+      <stop offset="0.72" stop-color="#168BC1"/>
+      <stop offset="1" stop-color="#56F0CD"/>
+    </linearGradient>
+
+    <radialGradient id="topGlow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(646 256) rotate(124) scale(550 470)">
+      <stop offset="0" stop-color="#A8FFF3" stop-opacity="0.48"/>
+      <stop offset="0.48" stop-color="#2AC6D4" stop-opacity="0.14"/>
+      <stop offset="1" stop-color="#00144B" stop-opacity="0"/>
+    </radialGradient>
+
+    <radialGradient id="bottomGlow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(365 770) rotate(-34) scale(410 330)">
+      <stop offset="0" stop-color="#1E6BFF" stop-opacity="0.48"/>
+      <stop offset="0.54" stop-color="#0A49C7" stop-opacity="0.16"/>
+      <stop offset="1" stop-color="#00144B" stop-opacity="0"/>
+    </radialGradient>
+
+    <linearGradient id="rimGradient" x1="209" y1="122" x2="856" y2="892" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#7FF7FF" stop-opacity="0.52"/>
+      <stop offset="0.42" stop-color="#FFFFFF" stop-opacity="0.12"/>
+      <stop offset="0.74" stop-color="#3CA8FF" stop-opacity="0.2"/>
+      <stop offset="1" stop-color="#001445" stop-opacity="0.46"/>
+    </linearGradient>
+
+    <linearGradient id="symbolGradient" x1="334" y1="810" x2="760" y2="306" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#0D60E8"/>
+      <stop offset="0.34" stop-color="#1DA7EF"/>
+      <stop offset="0.67" stop-color="#57F0D7"/>
+      <stop offset="1" stop-color="#D5FFF6"/>
+    </linearGradient>
+
+    <linearGradient id="leftLeafGradient" x1="254" y1="389" x2="531" y2="646" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#DBFFF8"/>
+      <stop offset="0.45" stop-color="#4CECDC"/>
+      <stop offset="1" stop-color="#0666DF"/>
+    </linearGradient>
+
+    <linearGradient id="rightLeafGradient" x1="515" y1="642" x2="799" y2="328" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#0D78E9"/>
+      <stop offset="0.48" stop-color="#42E7D1"/>
+      <stop offset="1" stop-color="#DFFFF7"/>
+    </linearGradient>
+
+    <radialGradient id="orbGradient" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(518 309) rotate(90) scale(58)">
+      <stop offset="0" stop-color="#F0FFFB"/>
+      <stop offset="0.55" stop-color="#81F8ED"/>
+      <stop offset="1" stop-color="#2A9BDA"/>
+    </radialGradient>
+
+    <linearGradient id="highlightGradient" x1="300" y1="375" x2="759" y2="363" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.78"/>
+      <stop offset="0.52" stop-color="#DFFFFB" stop-opacity="0.36"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0.82"/>
+    </linearGradient>
+
+    <clipPath id="iconClip">
+      <rect x="92" y="92" width="840" height="840" rx="184"/>
+    </clipPath>
+
+    <filter id="cardShadow" x="32" y="48" width="960" height="980" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="36" stdDeviation="36" flood-color="#02091F" flood-opacity="0.48"/>
+      <feDropShadow dx="0" dy="8" stdDeviation="10" flood-color="#0E75FF" flood-opacity="0.12"/>
+    </filter>
+
+    <filter id="symbolShadow" x="167" y="235" width="692" height="668" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="24" stdDeviation="22" flood-color="#001448" flood-opacity="0.38"/>
+      <feDropShadow dx="0" dy="4" stdDeviation="5" flood-color="#BFFFF7" flood-opacity="0.24"/>
+    </filter>
+
+    <filter id="orbGlow" x="415" y="206" width="206" height="206" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feGaussianBlur stdDeviation="20" result="blur"/>
+      <feColorMatrix in="blur" type="matrix" values="0 0 0 0 0.31 0 0 0 0 1 0 0 0 0 0.91 0 0 0 0.75 0" result="glow"/>
+      <feBlend in="glow" in2="SourceGraphic" mode="screen"/>
+    </filter>
+
+    <filter id="innerSoft" x="92" y="92" width="840" height="840" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="0.2"/>
+    </filter>
+  </defs>
+
+  <rect width="1024" height="1024" fill="transparent"/>
+
+  <g filter="url(#cardShadow)">
+    <rect x="92" y="92" width="840" height="840" rx="184" fill="url(#bgGradient)"/>
+    <g clip-path="url(#iconClip)">
+      <rect x="92" y="92" width="840" height="840" rx="184" fill="url(#topGlow)"/>
+      <rect x="92" y="92" width="840" height="840" rx="184" fill="url(#bottomGlow)"/>
+      <path d="M170 141C273 90 397 99 512 111C676 129 818 95 917 214V92H92V225C113 185 136 158 170 141Z" fill="#FFFFFF" opacity="0.08"/>
+      <path d="M160 836C255 905 417 939 564 917C687 899 798 861 932 881V932H92V812C111 819 134 827 160 836Z" fill="#020B2F" opacity="0.22"/>
+    </g>
+    <rect x="94" y="94" width="836" height="836" rx="182" stroke="url(#rimGradient)" stroke-width="4"/>
+    <rect x="103" y="103" width="818" height="818" rx="174" stroke="#FFFFFF" stroke-opacity="0.06" stroke-width="2"/>
+  </g>
+
+  <g filter="url(#symbolShadow)">
+    <path d="M506 819C545 740 532 677 488 625C449 579 381 541 296 488C389 511 470 556 514 624C560 556 654 499 785 352C772 504 684 589 590 645C537 677 533 743 506 819Z" fill="url(#symbolGradient)"/>
+
+    <path d="M505 626C435 596 359 545 304 474C270 430 251 390 246 353C296 419 371 461 444 495C505 524 537 572 505 626Z" fill="url(#leftLeafGradient)"/>
+
+    <path d="M534 622C579 539 667 493 732 433C773 395 798 359 809 319C821 454 751 557 643 605C600 624 561 628 534 622Z" fill="url(#rightLeafGradient)"/>
+
+    <path d="M246 353C303 423 372 464 444 495C502 520 535 568 509 620" stroke="url(#highlightGradient)" stroke-width="18" stroke-linecap="round" opacity="0.52"/>
+    <path d="M808 320C773 388 713 445 642 487C591 518 556 562 536 618" stroke="url(#highlightGradient)" stroke-width="18" stroke-linecap="round" opacity="0.55"/>
+
+    <path d="M508 819C545 740 532 677 488 625" stroke="#BFFFF7" stroke-width="8" stroke-linecap="round" opacity="0.2"/>
+    <path d="M514 624C560 556 654 499 785 352" stroke="#EFFFFC" stroke-width="8" stroke-linecap="round" opacity="0.24"/>
+  </g>
+
+  <g filter="url(#orbGlow)">
+    <circle cx="518" cy="309" r="51" fill="url(#orbGradient)"/>
+    <circle cx="503" cy="292" r="14" fill="#FFFFFF" opacity="0.42"/>
+  </g>
+
+  <path d="M521 257C549 257 572 280 572 309" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" opacity="0.38"/>
+</svg>

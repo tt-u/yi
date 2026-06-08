@@ -1,0 +1,126 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+/* kami 设计语言：暖羊皮纸底 + 墨蓝强调 + 衬线主导 + 暖灰层级 */
+:root {
+  --radius: 0.5rem;
+  --background: #f5f4ed; /* parchment */
+  --foreground: #141413; /* near-black */
+  --card: #faf9f5; /* ivory */
+  --card-foreground: #141413;
+  --popover: #faf9f5;
+  --popover-foreground: #141413;
+  --primary: #1b365d; /* ink-blue */
+  --primary-foreground: #faf9f5;
+  --secondary: #e8e6dc; /* warm sand */
+  --secondary-foreground: #3d3d3a;
+  --muted: #eceae0;
+  --muted-foreground: #6b6a64; /* stone */
+  --accent: #e8e6dc;
+  --accent-foreground: #141413;
+  --destructive: #9a2b2b; /* warm red */
+  --border: #e3e0d4;
+  --input: #ddd9cc;
+  --ring: #1b365d;
+  --chart-1: #1b365d;
+  --chart-2: #2d5a8a;
+  --chart-3: #504e49;
+  --chart-4: #6b6a64;
+  --chart-5: #9a2b2b;
+  --sidebar: #faf9f5;
+  --sidebar-foreground: #141413;
+  --sidebar-primary: #1b365d;
+  --sidebar-primary-foreground: #faf9f5;
+  --sidebar-accent: #e8e6dc;
+  --sidebar-accent-foreground: #141413;
+  --sidebar-border: #e3e0d4;
+  --sidebar-ring: #1b365d;
+}
+
+.dark {
+  --background: #141413; /* deep dark */
+  --foreground: #f2f0e9;
+  --card: #30302e; /* dark surface */
+  --card-foreground: #f2f0e9;
+  --popover: #30302e;
+  --popover-foreground: #f2f0e9;
+  --primary: #6c98c9; /* ink-blue, lifted for dark */
+  --primary-foreground: #141413;
+  --secondary: #30302e;
+  --secondary-foreground: #f2f0e9;
+  --muted: #2a2a28;
+  --muted-foreground: #a8a59a;
+  --accent: #30302e;
+  --accent-foreground: #f2f0e9;
+  --destructive: #d98a8a;
+  --border: #3d3d3a;
+  --input: #3d3d3a;
+  --ring: #6c98c9;
+  --chart-1: #6c98c9;
+  --chart-2: #2d5a8a;
+  --chart-3: #a8a59a;
+  --chart-4: #6b6a64;
+  --chart-5: #d98a8a;
+  --sidebar: #30302e;
+  --sidebar-foreground: #f2f0e9;
+  --sidebar-primary: #6c98c9;
+  --sidebar-primary-foreground: #141413;
+  --sidebar-accent: #2a2a28;
+  --sidebar-accent-foreground: #f2f0e9;
+  --sidebar-border: #3d3d3a;
+  --sidebar-ring: #6c98c9;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+    /* kami 衬线主导：英文 Charter，中文回退到系统宋体衬线 */
+    font-family:
+      Charter, Georgia, "Songti SC", "Source Han Serif SC", "Noto Serif CJK SC",
+      "STSong", serif;
+    -webkit-font-smoothing: antialiased;
+  }
+}
