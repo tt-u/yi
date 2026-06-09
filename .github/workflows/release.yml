@@ -1,7 +1,8 @@
 name: Release
 
-# Push a tag like v0.1.0 (matching the version in package.json) to build and
-# publish installers for macOS (arm64 + x64) and Windows (x64) to a GitHub Release.
+# Push a tag like v0.1.0 (matching the version in package.json) to build
+# installers for macOS (arm64 + x64) and Windows (x64) and attach them to a
+# single GitHub Release.
 on:
   push:
     tags:
@@ -11,7 +12,10 @@ permissions:
   contents: write
 
 jobs:
-  release:
+  # Build installers per platform and upload them as workflow artifacts.
+  # (Building does NOT publish — that avoids two runners racing to create the
+  # release and splitting the assets across duplicate drafts.)
+  build:
     strategy:
       fail-fast: false
       matrix:
@@ -23,18 +27,33 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
-
       - uses: pnpm/action-setup@v4
-
       - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: pnpm
-
       - run: pnpm install --frozen-lockfile
+      - run: pnpm run build
+      - run: pnpm exec electron-builder --${{ matrix.platform }} --publish never
+      - uses: actions/upload-artifact@v4
+        with:
+          name: installers-${{ matrix.platform }}
+          # Only the user-facing installers; skip blockmap / latest*.yml (auto-update metadata)
+          path: |
+            dist/*.dmg
+            dist/*.exe
+          if-no-files-found: error
 
-      # electron-vite build + electron-builder, publishing artifacts to the
-      # GitHub Release for this tag (created as a draft on first run).
-      - run: pnpm run release:${{ matrix.platform }}
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  # Collect every platform's installers and attach them to ONE draft release.
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          merge-multiple: true
+      - uses: softprops/action-gh-release@v2
+        with:
+          draft: true
+          files: artifacts/**/*
