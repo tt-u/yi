@@ -41,6 +41,8 @@ const api = {
     /** Renderer has mounted and is ready to receive payloads */
     ready: () => ipcRenderer.send("popup:ready"),
     hide: () => ipcRenderer.send("popup:hide"),
+    /** Translation copied to clipboard; main arms ⌘/Ctrl+V to close + replay the paste */
+    copied: () => ipcRenderer.send("popup:copied"),
     /** Request the main process to adjust the window height when content height changes */
     resize: (height: number) => ipcRenderer.send("popup:resize", height),
   },

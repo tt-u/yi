@@ -80,7 +80,11 @@ export default function Page() {
         });
         if (controller.signal.aborted) return;
         // Write the translation to the clipboard so the user can ⌘V to replace the original in the source app
-        if (full) window.api.clipboard.write(full);
+        if (full) {
+          window.api.clipboard.write(full);
+          // Arm paste-watching: the next ⌘/Ctrl+V closes the popup and is replayed into the source app
+          window.api.popup.copied();
+        }
         setView({ kind: "result", text: full, streaming: false, copied: true });
       } catch (err) {
         if (controller.signal.aborted) return;
@@ -122,6 +126,7 @@ export default function Page() {
         {/* Close button */}
         <button
           type="button"
+          tabIndex={-1}
           aria-label={t("popup.close")}
           onClick={() => window.api.popup.hide()}
           className="absolute top-1.5 right-1.5 z-10 rounded-md p-1 text-muted-foreground/50 transition-colors hover:bg-accent hover:text-foreground"

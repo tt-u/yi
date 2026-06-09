@@ -2,12 +2,30 @@ import { is } from "@electron-toolkit/utils";
 import { BrowserWindow, ipcMain, screen } from "electron";
 import { join } from "path";
 
+import { simulatePaste } from "./selection";
+import { unwatchPaste, watchPaste } from "./shortcuts";
+
+/**
+ * Called when the user presses ⌘/Ctrl+V while a translation is showing.
+ * The popup is a non-activating panel, so the source app stays the active app;
+ * just hide the popup and replay the paste into the (still frontmost) source app.
+ */
+function onPaste(): void {
+  unwatchPaste();
+  hidePopup();
+  void simulatePaste();
+}
+
 const POPUP_WIDTH = 360;
 /** Initial height at creation; adjusted dynamically via popup:resize once content renders */
 const POPUP_INIT_HEIGHT = 96;
 const POPUP_MAX_HEIGHT = 720;
 /** Idle time before the result auto-hides */
 const AUTO_HIDE_MS = 6000;
+/** Window after showing during which blur is ignored (focus-steal settling) */
+const BLUR_GRACE_MS = 400;
+/** Timestamp of the last focus-stealing show, used by the blur grace window */
+let shownAt = 0;
 
 /** Error kinds shown in the popup; the renderer localizes them. */
 export type PopupErrorCode =
@@ -40,6 +58,9 @@ function createPopupWindow(): BrowserWindow {
     fullscreenable: false,
     skipTaskbar: true,
     hasShadow: false, // Shadow is drawn in CSS to avoid the outline artifacts of transparent windows
+    // macOS: a panel (NSPanel) can take keyboard focus WITHOUT activating the
+    // app, so focusing the popup never drags the settings window to the front.
+    ...(process.platform === "darwin" ? { type: "panel" as const } : {}),
     webPreferences: {
       preload: join(__dirname, "../preload/index.js"),
       sandbox: false,
@@ -50,6 +71,13 @@ function createPopupWindow(): BrowserWindow {
   win.setAlwaysOnTop(true, "screen-saver");
   win.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
 
+  // Close on blur (click elsewhere / switch apps); ignore the blur that fires
+  // right after a focus-stealing show.
+  win.on("blur", () => {
+    if (win.isDestroyed()) return;
+    if (Date.now() - shownAt < BLUR_GRACE_MS) return;
+    hidePopup();
+  });
   win.on("closed", () => {
     popupWindow = null;
     rendererReady = false;
@@ -105,11 +133,12 @@ export function prewarmPopup(): void {
 /**
  * Pop up a small window next to the cursor and show the capture result/error.
  *
- * The popup never steals focus (always showInactive): the source app stays
- * frontmost so the simulated ⌘C hits its selection, and so the user can press
- * ⌘V right away to replace the original with the auto-copied translation.
- * Closing: close button / auto-hide timer — no focus, so no system permissions
- * and no focus ring on the close button.
+ * - "pending" (capture in progress) shows WITHOUT focus, so the source app
+ *   stays frontmost and the simulated ⌘C hits its selection.
+ * - Results ("text"/"error") steal focus, so the popup can close on blur
+ *   (click elsewhere / switch apps). The translation is on the clipboard, and a
+ *   ⌘V is intercepted + replayed into the source app (see onPaste).
+ * Closing: blur / close button / ⌘V / auto-hide timer.
  */
 export function showPopup(payload: PopupPayload): void {
   if (!popupWindow || popupWindow.isDestroyed()) {
@@ -120,10 +149,28 @@ export function showPopup(payload: PopupPayload): void {
     clearTimeout(hideTimer);
     hideTimer = null;
   }
+  // Clear any stale paste-watch from a previous result; the renderer re-arms it
+  // via "popup:copied" once this translation is on the clipboard.
+  unwatchPaste();
+
+  const steal = payload.kind !== "pending";
   if (!popupWindow.isVisible()) {
     positionAtCursor(popupWindow);
-    popupWindow.showInactive();
+    if (steal) {
+      shownAt = Date.now();
+      // Focus only this window — NOT app.focus({steal:true}), which would
+      // activate the whole app and drag the settings window to the front too.
+      popupWindow.show();
+      popupWindow.focus();
+    } else {
+      popupWindow.showInactive();
+    }
+  } else if (steal && !popupWindow.isFocused()) {
+    // Skeleton was already visible without focus; grab focus now to enable blur-close.
+    shownAt = Date.now();
+    popupWindow.focus();
   }
+
   if (payload.kind !== "pending") {
     hideTimer = setTimeout(() => hidePopup(), AUTO_HIDE_MS);
   }
@@ -134,6 +181,7 @@ export function hidePopup(): void {
     clearTimeout(hideTimer);
     hideTimer = null;
   }
+  unwatchPaste();
   if (popupWindow && !popupWindow.isDestroyed()) popupWindow.hide();
 }
 
@@ -154,6 +202,9 @@ export function setupPopupIpc(): void {
     }
   });
   ipcMain.on("popup:hide", () => hidePopup());
+  // Renderer signals that the translation has been copied to the clipboard;
+  // arm paste-watching so the next ⌘/Ctrl+V closes the popup and is replayed.
+  ipcMain.on("popup:copied", () => watchPaste(onPaste));
 
   // Renderer requests a window height matching its content height (window grows to fit the card)
   ipcMain.on("popup:resize", (_event, height: number) => {

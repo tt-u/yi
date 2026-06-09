@@ -40,6 +40,28 @@ export function applyCaptureShortcut(options: {
   return ok;
 }
 
+const PASTE_ACCEL = "CommandOrControl+V";
+let pasteHandler: (() => void) | null = null;
+
+/**
+ * Temporarily claim ⌘/Ctrl+V while a translation popup is showing, so we can
+ * detect the user's paste, close the popup, and replay the paste to the source
+ * app. Uses globalShortcut (no Input Monitoring permission needed).
+ */
+export function watchPaste(handler: () => void): void {
+  pasteHandler = handler;
+  if (!globalShortcut.isRegistered(PASTE_ACCEL)) {
+    globalShortcut.register(PASTE_ACCEL, () => pasteHandler?.());
+  }
+}
+
+export function unwatchPaste(): void {
+  pasteHandler = null;
+  if (globalShortcut.isRegistered(PASTE_ACCEL)) {
+    globalShortcut.unregister(PASTE_ACCEL);
+  }
+}
+
 export function registerToggleMainShortcut(handler: () => void): void {
   const ok = globalShortcut.register(TOGGLE_MAIN_SHORTCUT, handler);
   console.log(

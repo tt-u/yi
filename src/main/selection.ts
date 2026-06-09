@@ -45,6 +45,16 @@ async function simulateKey(key: string): Promise<void> {
 }
 
 /**
+ * Replay a paste (⌘/Ctrl+V) into the foreground app. Used after the popup
+ * intercepts the user's paste via globalShortcut, so the paste still lands in
+ * the source app. A short delay lets the physically-held modifiers settle.
+ */
+export async function simulatePaste(): Promise<void> {
+  await delay(40);
+  await simulateKey("v");
+}
+
+/**
  * Capture the selected text in the foreground app:
  * back up the clipboard → write the sentinel → simulate copy → read → restore the clipboard.
  * Returns an empty string when nothing is selected.
