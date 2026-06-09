@@ -23,7 +23,7 @@ nsis:
   uninstallDisplayName: ${productName}
   createDesktopShortcut: always
 mac:
-  # 同时构建 Apple Silicon 与 Intel 两种架构
+  # Build both Apple Silicon and Intel architectures
   target:
     - target: dmg
       arch:
@@ -37,9 +37,10 @@ mac:
     - NSDownloadsFolderUsageDescription: Application requests access to the user's Downloads folder.
   notarize: false
 dmg:
-  # 多架构需带 arch 后缀，否则两个 dmg 同名冲突
+  # Multi-arch needs an arch suffix, otherwise the two dmgs collide
   artifactName: ${name}-${version}-${arch}.${ext}
 npmRebuild: false
 publish:
-  provider: generic
-  url: https://example.com/auto-updates
+  provider: github
+  owner: tt-u
+  repo: yi

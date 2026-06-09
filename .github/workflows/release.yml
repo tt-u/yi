@@ -1,0 +1,40 @@
+name: Release
+
+# Push a tag like v0.1.0 (matching the version in package.json) to build and
+# publish installers for macOS (arm64 + x64) and Windows (x64) to a GitHub Release.
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-latest
+            platform: mac
+          - os: windows-latest
+            platform: win
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      # electron-vite build + electron-builder, publishing artifacts to the
+      # GitHub Release for this tag (created as a draft on first run).
+      - run: pnpm run release:${{ matrix.platform }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
