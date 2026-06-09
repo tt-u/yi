@@ -78,6 +78,14 @@ function createPopupWindow(): BrowserWindow {
     if (Date.now() - shownAt < BLUR_GRACE_MS) return;
     hidePopup();
   });
+  // While the popup holds focus the user is still reading it — cancel auto-hide.
+  // (Auto-hide stays as a fallback only for when focus couldn't be taken.)
+  win.on("focus", () => {
+    if (hideTimer) {
+      clearTimeout(hideTimer);
+      hideTimer = null;
+    }
+  });
   win.on("closed", () => {
     popupWindow = null;
     rendererReady = false;
@@ -171,7 +179,10 @@ export function showPopup(payload: PopupPayload): void {
     popupWindow.focus();
   }
 
-  if (payload.kind !== "pending") {
+  // Auto-hide is only a fallback for when the popup couldn't take focus. While
+  // it holds focus, blur / paste / the close button dismiss it instead (and the
+  // "focus" handler clears this timer if focus arrives asynchronously).
+  if (payload.kind !== "pending" && !popupWindow.isFocused()) {
     hideTimer = setTimeout(() => hidePopup(), AUTO_HIDE_MS);
   }
 }
