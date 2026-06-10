@@ -1,0 +1,39 @@
+@import "tailwindcss";
+
+/* kami design language: parchment + ink-blue + serif (matches the Yi app) */
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-border: var(--border);
+}
+
+:root {
+  --background: #f5f4ed;
+  --foreground: #141413;
+  --card: #faf9f5;
+  --primary: #1b365d;
+  --primary-foreground: #faf9f5;
+  --muted: #eceae0;
+  --muted-foreground: #6b6a64;
+  --accent: #e8e6dc;
+  --border: #e3e0d4;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family:
+    Charter, Georgia, "Songti SC", "Source Han Serif SC", "Noto Serif CJK SC",
+    "STSong", serif;
+  -webkit-font-smoothing: antialiased;
+}
