@@ -13,10 +13,10 @@ import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { DeepSeekError, testApiKey } from "@/lib/deepseek";
+import { DeepSeekError, RELAY_AVAILABLE, testApiKey } from "@/lib/deepseek";
 import { getLocale, type Locale, setLocale, useT } from "@/lib/i18n";
 import { LANGUAGES } from "@/lib/languages";
-import { SettingsManager } from "@/lib/settings";
+import { SettingsManager, type TranslationSource } from "@/lib/settings";
 import { applyTheme, type ThemeMode } from "@/lib/theme";
 
 import type { SelectionStatus } from "../../../../preload";
@@ -189,6 +189,12 @@ export default function Page() {
     window.api?.setLocale?.(next);
   };
 
+  const changeSource = (src: TranslationSource) =>
+    setSettings((s) => ({ ...s, translationSource: src }));
+
+  // Use the built-in relay only when this build ships one AND the user picked it.
+  const relayMode = RELAY_AVAILABLE && settings.translationSource === "relay";
+
   const handleTest = async () => {
     if (!settings.deepseekApiKey) return;
     setTest({ kind: "testing" });
@@ -237,72 +243,101 @@ export default function Page() {
         </div>
       </header>
 
-      {/* API */}
-      <Section title={t("section.api")}>
-        <div className="flex flex-col gap-2">
-          <div className="flex gap-2">
-            <div className="relative flex-1">
-              <Input
-                type={showKey ? "text" : "password"}
-                placeholder={t("apiKey.placeholder")}
-                autoComplete="off"
-                spellCheck={false}
-                value={settings.deepseekApiKey}
-                onChange={(e) => {
-                  setSettings({ ...settings, deepseekApiKey: e.target.value });
-                  setTest({ kind: "idle" });
-                }}
-                className="h-9 pr-9 font-mono text-sm"
-              />
+      {/* Translation source */}
+      <Section title={t("section.translation")}>
+        {RELAY_AVAILABLE && (
+          <div className="grid grid-cols-2 gap-2">
+            {(["relay", "own"] as const).map((src) => (
               <button
+                key={src}
                 type="button"
-                aria-label={showKey ? t("apiKey.hide") : t("apiKey.show")}
-                onClick={() => setShowKey((v) => !v)}
-                className="absolute top-1/2 right-2.5 -translate-y-1/2 text-muted-foreground transition-colors hover:text-foreground"
+                onClick={() => changeSource(src)}
+                className={`rounded-lg border px-3 py-2 text-sm transition-colors ${
+                  settings.translationSource === src
+                    ? "border-primary bg-primary/5 ring-1 ring-primary"
+                    : "hover:bg-accent"
+                }`}
               >
-                {showKey ? (
-                  <Eye className="size-4" />
-                ) : (
-                  <EyeOff className="size-4" />
-                )}
+                {t(`source.${src}`)}
               </button>
-            </div>
-            <Button
-              variant="outline"
-              className="h-9"
-              onClick={handleTest}
-              disabled={!settings.deepseekApiKey || test.kind === "testing"}
-            >
-              {test.kind === "testing" && (
-                <Loader2 className="size-4 animate-spin" />
-              )}
-              {t("apiKey.test")}
-            </Button>
+            ))}
           </div>
-          {test.kind === "ok" && (
-            <p className="flex items-center gap-1.5 text-xs text-primary">
-              <Check className="size-3.5" />
-              {t("apiKey.connected")}
-            </p>
-          )}
-          {test.kind === "fail" && (
-            <p className="text-xs text-destructive">{test.message}</p>
-          )}
-          {test.kind === "idle" && (
-            <p className="text-xs text-muted-foreground">
-              {t("apiKey.hintBefore")}{" "}
-              <a
-                href="https://platform.deepseek.com/api_keys"
-                target="_blank"
-                rel="noreferrer"
-                className="text-primary underline-offset-4 hover:underline"
+        )}
+
+        {relayMode ? (
+          <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
+            <Check className="size-3.5 text-primary" />
+            {t("source.relayHint")}
+          </p>
+        ) : (
+          <div className="flex flex-col gap-2">
+            <div className="flex gap-2">
+              <div className="relative flex-1">
+                <Input
+                  type={showKey ? "text" : "password"}
+                  placeholder={t("apiKey.placeholder")}
+                  autoComplete="off"
+                  spellCheck={false}
+                  value={settings.deepseekApiKey}
+                  onChange={(e) => {
+                    setSettings({
+                      ...settings,
+                      deepseekApiKey: e.target.value,
+                    });
+                    setTest({ kind: "idle" });
+                  }}
+                  className="h-9 pr-9 font-mono text-sm"
+                />
+                <button
+                  type="button"
+                  aria-label={showKey ? t("apiKey.hide") : t("apiKey.show")}
+                  onClick={() => setShowKey((v) => !v)}
+                  className="absolute top-1/2 right-2.5 -translate-y-1/2 text-muted-foreground transition-colors hover:text-foreground"
+                >
+                  {showKey ? (
+                    <Eye className="size-4" />
+                  ) : (
+                    <EyeOff className="size-4" />
+                  )}
+                </button>
+              </div>
+              <Button
+                variant="outline"
+                className="h-9"
+                onClick={handleTest}
+                disabled={!settings.deepseekApiKey || test.kind === "testing"}
               >
-                platform.deepseek.com
-              </a>
-              {t("apiKey.hintAfter")}
-            </p>
-          )}
-        </div>
+                {test.kind === "testing" && (
+                  <Loader2 className="size-4 animate-spin" />
+                )}
+                {t("apiKey.test")}
+              </Button>
+            </div>
+            {test.kind === "ok" && (
+              <p className="flex items-center gap-1.5 text-xs text-primary">
+                <Check className="size-3.5" />
+                {t("apiKey.connected")}
+              </p>
+            )}
+            {test.kind === "fail" && (
+              <p className="text-xs text-destructive">{test.message}</p>
+            )}
+            {test.kind === "idle" && (
+              <p className="text-xs text-muted-foreground">
+                {t("apiKey.hintBefore")}{" "}
+                <a
+                  href="https://platform.deepseek.com/api_keys"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-primary underline-offset-4 hover:underline"
+                >
+                  platform.deepseek.com
+                </a>
+                {t("apiKey.hintAfter")}
+              </p>
+            )}
+          </div>
+        )}
       </Section>
 
       {/* Languages */}

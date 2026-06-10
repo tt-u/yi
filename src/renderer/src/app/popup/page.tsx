@@ -2,7 +2,12 @@ import { Check, Loader2, Settings2, X } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
-import { DeepSeekError, translate } from "@/lib/deepseek";
+import {
+  DeepSeekError,
+  RELAY_AVAILABLE,
+  translate,
+  translateViaRelay,
+} from "@/lib/deepseek";
 import { useT } from "@/lib/i18n";
 import { SettingsManager } from "@/lib/settings";
 
@@ -56,28 +61,39 @@ export default function Page() {
       abortRef.current = controller;
 
       const settings = SettingsManager.load();
-      if (!settings.deepseekApiKey) {
+      const useRelay =
+        settings.translationSource === "relay" && RELAY_AVAILABLE;
+      if (!useRelay && !settings.deepseekApiKey) {
         setView({ kind: "no-key" });
         return;
       }
 
       setView({ kind: "loading" });
       try {
-        const full = await translate({
-          apiKey: settings.deepseekApiKey,
-          model: settings.model,
-          text,
-          langA: settings.langA,
-          langB: settings.langB,
-          signal: controller.signal,
-          onDelta: (_, partial) =>
-            setView({
-              kind: "result",
-              text: partial,
-              streaming: true,
-              copied: false,
-            }),
-        });
+        const onDelta = (_: string, partial: string) =>
+          setView({
+            kind: "result",
+            text: partial,
+            streaming: true,
+            copied: false,
+          });
+        const full = useRelay
+          ? await translateViaRelay({
+              text,
+              langA: settings.langA,
+              langB: settings.langB,
+              signal: controller.signal,
+              onDelta,
+            })
+          : await translate({
+              apiKey: settings.deepseekApiKey,
+              model: settings.model,
+              text,
+              langA: settings.langA,
+              langB: settings.langB,
+              signal: controller.signal,
+              onDelta,
+            });
         if (controller.signal.aborted) return;
         // Write the translation to the clipboard so the user can ⌘V to replace the original in the source app
         if (full) {

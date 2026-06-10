@@ -34,6 +34,11 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm run build
+        env:
+          # Built into the renderer so released apps offer the "Built-in (free)"
+          # relay. Leave these secrets unset to ship own-key-only builds.
+          VITE_RELAY_URL: ${{ secrets.VITE_RELAY_URL }}
+          VITE_RELAY_TOKEN: ${{ secrets.VITE_RELAY_TOKEN }}
       - run: pnpm exec electron-builder --${{ matrix.platform }} --publish never
         env:
           # macOS Developer ID signing + notarization (empty on Windows so it

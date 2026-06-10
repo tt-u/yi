@@ -10,8 +10,16 @@ const messages: Record<Locale, Record<string, string>> = {
     "app.tagline": "Translate anywhere, converse across languages",
 
     "section.api": "DeepSeek API",
+    "section.translation": "Translation",
     "section.languages": "Languages",
     "section.shortcut": "Shortcut",
+
+    "source.relay": "Built-in (free)",
+    "source.own": "My DeepSeek key",
+    "source.relayHint": "Using the built-in service — no API key needed",
+    "relay.unavailable": "Built-in translation isn't available in this build.",
+    "relay.unauthorized": "The built-in service rejected the request.",
+    "relay.error": "Built-in translation service error. Please try again.",
 
     "apiKey.placeholder": "API Key (sk-...)",
     "apiKey.show": "Show key",
@@ -85,8 +93,16 @@ const messages: Record<Locale, Record<string, string>> = {
     "app.tagline": "随处翻译，跨语言对话",
 
     "section.api": "DeepSeek API",
+    "section.translation": "翻译服务",
     "section.languages": "语言",
     "section.shortcut": "快捷键",
+
+    "source.relay": "内置中转（免费）",
+    "source.own": "自己的 Key",
+    "source.relayHint": "使用内置服务，免费，无需填 API Key",
+    "relay.unavailable": "此版本未内置中转服务。",
+    "relay.unauthorized": "内置服务拒绝了请求。",
+    "relay.error": "内置翻译服务出错，请重试。",
 
     "apiKey.placeholder": "API Key（sk-...）",
     "apiKey.show": "显示密钥",

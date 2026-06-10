@@ -2,7 +2,12 @@ import type { ThemeMode } from "./theme";
 
 export type DeepSeekModel = "deepseek-chat" | "deepseek-reasoner";
 
+/** Where translations are sent: the built-in relay (your key/prompt) or the user's own DeepSeek key. */
+export type TranslationSource = "relay" | "own";
+
 export interface SettingsData {
+  /** "relay" = built-in Worker (free for the user); "own" = direct DeepSeek with the user's key */
+  translationSource: TranslationSource;
   deepseekApiKey: string;
   model: DeepSeekModel;
   /** Language pair: input one of the languages, output the other */
@@ -21,6 +26,7 @@ export interface SettingsData {
 const SETTINGS_KEY = "yi-settings";
 
 const DEFAULTS: SettingsData = {
+  translationSource: "relay",
   deepseekApiKey: "",
   model: "deepseek-chat",
   langA: "zh",

@@ -5,6 +5,11 @@ out
 .eslintcache
 *.log*
 
+# Local env (relay URL/token); keep the example
+.env
+.env.*
+!.env.example
+
 # Editor / local tooling
 .vscode/
 .agents/

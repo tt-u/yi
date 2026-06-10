@@ -77,12 +77,19 @@ async function streamChat(options: {
     throw new DeepSeekError(t("deepseek.stream"));
   }
 
-  const reader = res.body.getReader();
+  return readStream(res.body, options.onDelta);
+}
+
+/** Parse a chat-completions SSE stream ("data: {...}" lines) into the full text. */
+async function readStream(
+  body: ReadableStream<Uint8Array>,
+  onDelta?: (delta: string, full: string) => void,
+): Promise<string> {
+  const reader = body.getReader();
   const decoder = new TextDecoder();
   let buffer = "";
   let full = "";
 
-  // Parse SSE: each line is "data: {...}", terminated by "data: [DONE]"
   for (;;) {
     const { done, value } = await reader.read();
     if (done) break;
@@ -101,7 +108,7 @@ async function streamChat(options: {
         const delta: string = json?.choices?.[0]?.delta?.content ?? "";
         if (delta) {
           full += delta;
-          options.onDelta?.(delta, full);
+          onDelta?.(delta, full);
         }
       } catch {
         // Skip incomplete JSON fragments
@@ -134,6 +141,50 @@ export async function translate(options: TranslateOptions): Promise<string> {
     signal,
     onDelta,
   });
+}
+
+const RELAY_URL = import.meta.env.VITE_RELAY_URL;
+const RELAY_TOKEN = import.meta.env.VITE_RELAY_TOKEN;
+
+/** Whether a built-in relay is configured in this build (URL + token present). */
+export const RELAY_AVAILABLE = Boolean(RELAY_URL && RELAY_TOKEN);
+
+/**
+ * Translate via the built-in relay Worker (server-side key + prompt). The
+ * client never sees the DeepSeek key or the prompt; only sends the text.
+ */
+export async function translateViaRelay(options: {
+  text: string;
+  langA: string;
+  langB: string;
+  signal?: AbortSignal;
+  onDelta?: (delta: string, full: string) => void;
+}): Promise<string> {
+  if (!RELAY_URL || !RELAY_TOKEN) {
+    throw new DeepSeekError(t("relay.unavailable"));
+  }
+  const res = await fetch(RELAY_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${RELAY_TOKEN}`,
+    },
+    body: JSON.stringify({
+      text: options.text,
+      langA: options.langA,
+      langB: options.langB,
+    }),
+    signal: options.signal,
+  });
+
+  if (!res.ok) {
+    throw new DeepSeekError(
+      res.status === 401 ? t("relay.unauthorized") : t("relay.error"),
+      res.status,
+    );
+  }
+  if (!res.body) throw new DeepSeekError(t("deepseek.stream"));
+  return readStream(res.body, options.onDelta);
 }
 
 /** Verify that the API key is valid */

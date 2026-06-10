@@ -69,18 +69,19 @@ await mainPage.evaluate((key) => {
       selectionEnabled: true,
       captureShortcut: "CommandOrControl+Y",
       locale: "en",
+      translationSource: "own",
     }),
   );
 }, API_KEY);
 await mainPage.reload({ waitUntil: "networkidle0" });
 await delay(800);
 
-// Test 1: the main window is the settings page (has the API + Shortcut cards, no translation input box)
+// Test 1: the main window is the settings page (has the Translation + Shortcut cards, no translation input box)
 const mainIsSettings = await mainPage.evaluate(() => {
   const text = document.body.innerText;
   return (
-    text.includes("DeepSeek API") &&
     text.includes("Translation shortcut") &&
+    text.includes("Languages") &&
     !document.querySelector("textarea")
   );
 });
