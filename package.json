@@ -1,6 +1,6 @@
 {
   "name": "yi",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Translate anywhere and converse across languages — instant inline DeepSeek translation, one shortcut away.",
   "main": "./out/main/index.js",
   "author": "example.com",
