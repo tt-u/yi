@@ -66,6 +66,15 @@ jobs:
         with:
           path: artifacts
           merge-multiple: true
+      # Rename to user-friendly names (arm64 -> Apple Silicon, x64 -> Intel).
+      - name: Rename installers
+        run: |
+          cd artifacts
+          ver="${GITHUB_REF_NAME#v}"
+          for f in *-arm64.dmg; do [ -e "$f" ] && mv "$f" "Yi-${ver}-macOS-Apple-Silicon.dmg"; done
+          for f in *-x64.dmg;   do [ -e "$f" ] && mv "$f" "Yi-${ver}-macOS-Intel.dmg"; done
+          for f in *-setup.exe; do [ -e "$f" ] && mv "$f" "Yi-${ver}-Windows-x64-Setup.exe"; done
+          ls -la
       - uses: softprops/action-gh-release@v2
         with:
           draft: true
