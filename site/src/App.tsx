@@ -20,7 +20,8 @@ function Github({ className }: { className?: string }) {
 }
 
 const GITHUB = "https://github.com/tt-u/yi";
-const RELEASES = "https://github.com/tt-u/yi/releases/latest";
+// Stable direct-download links: always the matching installer from the latest release.
+const DL_BASE = "https://github.com/tt-u/yi/releases/latest/download";
 
 function Nav() {
   const t = useT();
@@ -70,11 +71,8 @@ function Nav() {
 function Hero() {
   const t = useT();
   return (
-    <section className="mx-auto max-w-5xl px-5 pt-16 pb-10 text-center sm:pt-24">
-      <span className="inline-flex items-center rounded-full border border-primary/20 bg-primary/5 px-3 py-1 text-xs font-medium text-primary">
-        {t("hero.badge")}
-      </span>
-      <h1 className="mx-auto mt-6 max-w-3xl text-4xl leading-tight font-semibold tracking-tight whitespace-pre-line sm:text-6xl">
+    <section className="mx-auto max-w-5xl px-5 pt-20 pb-10 text-center sm:pt-28">
+      <h1 className="mx-auto max-w-3xl text-4xl leading-tight font-semibold tracking-tight whitespace-pre-line sm:text-6xl">
         {t("hero.title")}
       </h1>
       <p className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-muted-foreground">
@@ -184,9 +182,9 @@ function Features() {
 }
 
 const PLATFORMS = [
-  { t: "dl.mac.apple", note: "dl.mac.appleNote" },
-  { t: "dl.mac.intel", note: "dl.mac.intelNote" },
-  { t: "dl.win", note: "dl.winNote" },
+  { t: "dl.mac.apple", note: "dl.mac.appleNote", file: "Yi-macOS-Apple-Silicon.dmg" },
+  { t: "dl.mac.intel", note: "dl.mac.intelNote", file: "Yi-macOS-Intel.dmg" },
+  { t: "dl.win", note: "dl.winNote", file: "Yi-Windows-x64-Setup.exe" },
 ];
 
 function Download() {
@@ -195,14 +193,12 @@ function Download() {
     <section id="download" className="py-20">
       <div className="mx-auto max-w-5xl px-5 text-center">
         <h2 className="text-3xl font-semibold tracking-tight">{t("dl.title")}</h2>
-        <p className="mt-3 text-muted-foreground">{t("dl.sub")}</p>
         <div className="mt-10 grid gap-5 sm:grid-cols-3">
-          {PLATFORMS.map(({ t: title, note }) => (
+          {PLATFORMS.map(({ t: title, note, file }) => (
             <a
               key={title}
-              href={RELEASES}
-              target="_blank"
-              rel="noreferrer"
+              href={`${DL_BASE}/${file}`}
+              download
               className="group rounded-2xl border border-border bg-card p-6 text-left transition-transform hover:-translate-y-1"
             >
               <h3 className="text-lg font-semibold">{t(title)}</h3>
@@ -213,9 +209,6 @@ function Download() {
             </a>
           ))}
         </div>
-        <p className="mx-auto mt-8 max-w-2xl text-sm leading-relaxed text-muted-foreground">
-          {t("dl.hint")}
-        </p>
       </div>
     </section>
   );
@@ -238,9 +231,7 @@ function Footer() {
             GitHub
           </a>
           <a
-            href={RELEASES}
-            target="_blank"
-            rel="noreferrer"
+            href="#download"
             className="text-muted-foreground transition-colors hover:text-foreground"
           >
             {t("nav.download")}
