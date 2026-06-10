@@ -31,6 +31,7 @@ let shownAt = 0;
 export type PopupErrorCode =
   | "no-selection"
   | "no-accessibility"
+  | "no-automation"
   | "read-failed"
   | "lookup-failed";
 

@@ -157,6 +157,11 @@ if (!app.requestSingleInstanceLock()) {
     }
     ipcMain.handle("accessibility:check", () => checkAccessibility(false));
     ipcMain.handle("accessibility:request", () => checkAccessibility(true));
+    ipcMain.on("system:open-automation", () => {
+      void shell.openExternal(
+        "x-apple.systempreferences:com.apple.preference.security?Privacy_Automation",
+      );
+    });
 
     // Selection-translation status / toggle / shortcut (used by the settings page).
     const selectionStatus = () => ({

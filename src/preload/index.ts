@@ -5,6 +5,7 @@ import { clipboard, contextBridge, ipcRenderer } from "electron";
 export type PopupErrorCode =
   | "no-selection"
   | "no-accessibility"
+  | "no-automation"
   | "read-failed"
   | "lookup-failed";
 
@@ -72,6 +73,11 @@ const api = {
     check: (): Promise<boolean> => ipcRenderer.invoke("accessibility:check"),
     request: (): Promise<boolean> =>
       ipcRenderer.invoke("accessibility:request"),
+  },
+
+  /** Open macOS system-settings panes */
+  system: {
+    openAutomationSettings: () => ipcRenderer.send("system:open-automation"),
   },
 
   /** Capture & translate runtime status / toggle / shortcut */

@@ -18,7 +18,11 @@ type ViewState =
   | { kind: "no-key" }
   | { kind: "loading" }
   | { kind: "result"; text: string; streaming: boolean; copied: boolean }
-  | { kind: "error"; message: string; needsAccessibility?: boolean };
+  | {
+      kind: "error";
+      message: string;
+      action?: "accessibility" | "automation";
+    };
 
 export default function Page() {
   const t = useT();
@@ -127,7 +131,12 @@ export default function Page() {
         setView({
           kind: "error",
           message: t(`error.${payload.code}`),
-          needsAccessibility: payload.code === "no-accessibility",
+          action:
+            payload.code === "no-accessibility"
+              ? "accessibility"
+              : payload.code === "no-automation"
+                ? "automation"
+                : undefined,
         });
       }
     });
@@ -183,7 +192,7 @@ export default function Page() {
         {view.kind === "error" && (
           <div className="flex items-center justify-between gap-3 px-5 py-4">
             <span className="text-sm text-destructive">{view.message}</span>
-            {view.needsAccessibility && (
+            {view.action === "accessibility" && (
               <Button
                 size="sm"
                 variant="outline"
@@ -191,6 +200,16 @@ export default function Page() {
                 onClick={() => void window.api.accessibility.request()}
               >
                 {t("a11y.grant")}
+              </Button>
+            )}
+            {view.action === "automation" && (
+              <Button
+                size="sm"
+                variant="outline"
+                className="h-7 shrink-0 px-2.5"
+                onClick={() => window.api.system.openAutomationSettings()}
+              >
+                {t("a11y.openSettings")}
               </Button>
             )}
           </div>

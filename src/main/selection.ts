@@ -12,7 +12,10 @@ const SENTINEL = " yi:no-selection ";
 const delay = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 /** Error codes for selection capture; the renderer localizes them. */
-export type SelectionErrorCode = "no-accessibility" | "read-failed";
+export type SelectionErrorCode =
+  | "no-accessibility"
+  | "no-automation"
+  | "read-failed";
 
 export class SelectionError extends Error {
   code: SelectionErrorCode;
@@ -82,6 +85,11 @@ export async function captureSelection(): Promise<string> {
     return "";
   } catch (error) {
     const message = String(error);
+    // Automation (Apple Events) permission denied: "Not authorized to send
+    // Apple events to System Events. (-1743)"
+    if (message.includes("-1743") || message.includes("Not authorized")) {
+      throw new SelectionError("no-automation");
+    }
     if (message.includes("assistive") || message.includes("1002")) {
       throw new SelectionError("no-accessibility");
     }

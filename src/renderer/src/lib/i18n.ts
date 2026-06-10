@@ -50,6 +50,7 @@ const messages: Record<Locale, Record<string, string>> = {
     "a11y.required":
       "Required to read selected text (System Settings → Privacy & Security)",
     "a11y.grant": "Grant access",
+    "a11y.openSettings": "Open Settings",
     "a11y.refresh": "Refresh permission status",
 
     "usage.before":
@@ -77,6 +78,8 @@ const messages: Record<Locale, Record<string, string>> = {
       "No text selected. Select some text first, then press the shortcut.",
     "error.no-accessibility":
       "Accessibility permission is required to read the selected text. Please grant it in System Settings.",
+    "error.no-automation":
+      "Allow Yi to control System Events in System Settings → Privacy & Security → Automation.",
     "error.read-failed": "Couldn't read the selected text. Please try again.",
     "error.lookup-failed": "Lookup failed, please try again.",
 
@@ -131,6 +134,7 @@ const messages: Record<Locale, Record<string, string>> = {
     "a11y.granted": "已授权",
     "a11y.required": "需要此权限才能读取选中文字（系统设置 → 隐私与安全性）",
     "a11y.grant": "去授权",
+    "a11y.openSettings": "打开设置",
     "a11y.refresh": "刷新权限状态",
 
     "usage.before":
@@ -156,6 +160,8 @@ const messages: Record<Locale, Record<string, string>> = {
     "error.no-selection": "没有选中文字。请先选中文字，再按快捷键。",
     "error.no-accessibility":
       "需要辅助功能权限才能读取选中文字，请在系统设置中授权。",
+    "error.no-automation":
+      "请在 系统设置 → 隐私与安全性 → 自动化 里允许 Yi 控制 System Events。",
     "error.read-failed": "读取选中文字失败，请重试。",
     "error.lookup-failed": "翻译失败，请重试。",
 
