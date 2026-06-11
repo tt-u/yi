@@ -1,12 +1,4 @@
-import {
-  ClipboardCheck,
-  KeyRound,
-  Languages,
-  MessageSquare,
-  Palette,
-  Shield,
-  Zap,
-} from "lucide-react";
+import { ClipboardCheck, Languages, MessageSquare, Zap } from "lucide-react";
 
 import { getLocale, setLocale, useT } from "./i18n";
 
@@ -132,9 +124,6 @@ const FEATURES = [
   { icon: Zap, t: "f.instant.t", d: "f.instant.d" },
   { icon: MessageSquare, t: "f.convo.t", d: "f.convo.d" },
   { icon: ClipboardCheck, t: "f.paste.t", d: "f.paste.d" },
-  { icon: KeyRound, t: "f.source.t", d: "f.source.d" },
-  { icon: Palette, t: "f.ui.t", d: "f.ui.d" },
-  { icon: Shield, t: "f.privacy.t", d: "f.privacy.d" },
 ];
 
 function Features() {
