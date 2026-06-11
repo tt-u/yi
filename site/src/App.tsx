@@ -96,17 +96,19 @@ function Hero() {
   );
 }
 
-/** Product showcase — a HyperFrames-rendered promo video (see site/promo/). */
+/** Product showcase — a HyperFrames-rendered promo video (see site/promo/), per locale. */
 function Showcase() {
   const t = useT();
   const base = import.meta.env.BASE_URL;
+  const name = getLocale() === "en" ? "promo-en" : "promo";
   return (
     <section className="mx-auto max-w-5xl px-5 pb-20">
       <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-xl">
         <video
+          key={name}
           className="block w-full"
-          src={`${base}promo.mp4`}
-          poster={`${base}promo-poster.jpg`}
+          src={`${base}${name}.mp4`}
+          poster={`${base}${name}-poster.jpg`}
           autoPlay
           muted
           loop

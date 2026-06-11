@@ -1,0 +1,358 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+      }
+      #root {
+        position: relative;
+        width: 1920px;
+        height: 1080px;
+        background: #f5f4ed;
+        color: #141413;
+        font-family: Charter, Georgia, "Songti SC", "STSong", serif;
+        overflow: hidden;
+      }
+      .scene {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      }
+      .logo {
+        font-size: 200px;
+        font-weight: 600;
+        letter-spacing: -4px;
+        line-height: 1;
+        color: #1b365d;
+      }
+      .tag {
+        font-size: 54px;
+        margin-top: 26px;
+      }
+      .subtag {
+        font-size: 32px;
+        margin-top: 14px;
+        color: #6b6a64;
+      }
+
+      .chat {
+        width: 1000px;
+        height: 760px;
+        display: flex;
+        flex-direction: column;
+        background: #faf9f5;
+        border: 1px solid #e3e0d4;
+        border-radius: 30px;
+        box-shadow: 0 44px 100px rgba(20, 20, 19, 0.16);
+        overflow: hidden;
+      }
+      .chead {
+        display: flex;
+        align-items: center;
+        gap: 18px;
+        padding: 26px 34px;
+        border-bottom: 1px solid #ece9df;
+      }
+      .avatar {
+        width: 56px;
+        height: 56px;
+        border-radius: 50%;
+        background: #1b365d;
+        color: #faf9f5;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 28px;
+      }
+      .cname {
+        font-size: 34px;
+        font-weight: 600;
+      }
+      .cstat {
+        font-size: 22px;
+        color: #6b6a64;
+      }
+      .msgs {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 26px;
+        padding: 44px 40px;
+        background: #f1efe6;
+      }
+      .bubble {
+        max-width: 72%;
+        font-size: 38px;
+        line-height: 1.4;
+        padding: 24px 32px;
+        border-radius: 26px;
+      }
+      .them {
+        align-self: flex-start;
+        background: #faf9f5;
+        border: 1px solid #e3e0d4;
+        border-bottom-left-radius: 8px;
+      }
+      .me {
+        align-self: flex-end;
+        background: #1b365d;
+        color: #faf9f5;
+        border-bottom-right-radius: 8px;
+      }
+      .inbar {
+        display: flex;
+        align-items: center;
+        gap: 18px;
+        padding: 24px 30px;
+        border-top: 1px solid #ece9df;
+      }
+      .inbox {
+        position: relative;
+        flex: 1;
+        height: 76px;
+        background: #fff;
+        border: 1px solid #ddd9cc;
+        border-radius: 20px;
+      }
+      .intext {
+        position: absolute;
+        left: 28px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 33px;
+        white-space: nowrap;
+      }
+      .sendbtn {
+        width: 76px;
+        height: 76px;
+        border-radius: 50%;
+        background: #1b365d;
+        color: #faf9f5;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 38px;
+      }
+
+      .popcard {
+        position: absolute;
+        left: 50%;
+        bottom: 240px;
+        transform: translateX(-50%);
+        width: 560px;
+        display: flex;
+        gap: 22px;
+        padding: 30px 38px 30px 30px;
+        background: #faf9f5;
+        border: 1px solid #e3e0d4;
+        border-radius: 24px;
+        box-shadow: 0 30px 64px rgba(20, 20, 19, 0.26);
+      }
+      .accent {
+        width: 5px;
+        align-self: stretch;
+        border-radius: 99px;
+        background: rgba(27, 54, 93, 0.7);
+      }
+      .trans {
+        font-size: 36px;
+        line-height: 1.35;
+      }
+      .copied {
+        margin-top: 14px;
+        font-size: 24px;
+        font-weight: 600;
+        color: #1b365d;
+      }
+
+      .hud {
+        position: absolute;
+        right: 70px;
+        bottom: 70px;
+        display: flex;
+        align-items: center;
+        gap: 18px;
+        padding: 22px 30px;
+        background: #141413;
+        color: #faf9f5;
+        border-radius: 20px;
+        box-shadow: 0 20px 50px rgba(20, 20, 19, 0.3);
+      }
+      .keycap {
+        font-family: "JetBrains Mono", ui-monospace, monospace;
+        font-size: 40px;
+        font-weight: 600;
+        background: #2f2f2c;
+        border: 1px solid #4a4a45;
+        border-radius: 12px;
+        padding: 6px 18px;
+      }
+      .hud-label {
+        font-size: 30px;
+      }
+
+      .cta {
+        font-size: 50px;
+        margin-top: 34px;
+        color: #1b365d;
+      }
+      .url {
+        font-size: 34px;
+        margin-top: 20px;
+        color: #6b6a64;
+        font-family: "JetBrains Mono", ui-monospace, monospace;
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-duration="14"
+      data-width="1920"
+      data-height="1080"
+    >
+      <!-- Scene 1 — logo -->
+      <div
+        id="s1"
+        class="clip scene"
+        data-start="0"
+        data-duration="2.6"
+        data-track-index="0"
+      >
+        <div id="s1-logo" class="logo">Yi</div>
+        <div id="s1-tag" class="tag">Translate anywhere, converse across languages</div>
+        <div id="s1-sub" class="subtag">随处翻译，跨语言对话</div>
+      </div>
+
+      <!-- Scene 2 — chat + paste demo -->
+      <div
+        id="s2"
+        class="clip scene"
+        data-start="2.4"
+        data-duration="9.8"
+        data-track-index="1"
+      >
+        <div class="chat">
+          <div class="chead">
+            <div class="avatar">小</div>
+            <div>
+              <div class="cname">小雨</div>
+              <div class="cstat">online</div>
+            </div>
+          </div>
+          <div class="msgs">
+            <div class="bubble them">想不想等会儿一起吃午饭？</div>
+            <div id="b-me" class="bubble me">好啊，老地方见，中午十二点！</div>
+          </div>
+          <div class="inbar">
+            <div class="inbox">
+              <span id="in-src" class="intext"
+                >Sure — let's meet at the usual spot at noon!</span
+              >
+              <span id="in-dst" class="intext">好啊，老地方见，中午十二点！</span>
+            </div>
+            <div class="sendbtn">↑</div>
+          </div>
+        </div>
+
+        <div id="pop" class="popcard">
+          <span class="accent"></span>
+          <div>
+            <div class="trans">好啊，老地方见，中午十二点！</div>
+            <div class="copied">Copied · ⌘V to paste into the chat</div>
+          </div>
+        </div>
+
+        <div id="hud-y" class="hud">
+          <span class="keycap">⌘Y</span><span class="hud-label">Translate</span>
+        </div>
+        <div id="hud-v" class="hud">
+          <span class="keycap">⌘V</span
+          ><span class="hud-label">Paste into chat</span>
+        </div>
+        <div id="hud-enter" class="hud">
+          <span class="keycap">↵</span><span class="hud-label">Send</span>
+        </div>
+      </div>
+
+      <!-- Scene 3 — download -->
+      <div
+        id="s3"
+        class="clip scene"
+        data-start="12"
+        data-duration="2"
+        data-track-index="2"
+      >
+        <div class="logo e">Yi</div>
+        <div class="cta e">Download free · macOS &amp; Windows</div>
+        <div class="url e">blockinsight.top/yi</div>
+      </div>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+      gsap.set(["#b-me", "#in-dst", "#pop", "#hud-y", "#hud-v", "#hud-enter"], {
+        opacity: 0,
+      });
+
+      // Scene 1
+      tl.from("#s1-logo", { y: 50, opacity: 0, duration: 0.8 }, 0.1)
+        .from("#s1-tag", { y: 26, opacity: 0, duration: 0.6 }, 0.45)
+        .from("#s1-sub", { y: 18, opacity: 0, duration: 0.6 }, 0.7)
+        .to("#s1", { opacity: 0, duration: 0.45 }, 2.2);
+
+      // Scene 2 — chat appears (user has typed the English reply)
+      tl.from("#s2 .chat", { y: 40, opacity: 0, duration: 0.7 }, 2.5);
+
+      // ⌘Y: translate the typed English -> Yi shows the Chinese translation
+      tl.to("#hud-y", { opacity: 1, scale: 1, duration: 0.35, ease: "back.out(2)" }, 4.0)
+        .to("#pop", { opacity: 1, y: 0, duration: 0.5, ease: "back.out(1.4)" }, 4.3)
+        .to("#hud-y", { opacity: 0, duration: 0.3 }, 5.6);
+
+      // ⌘V: paste the translation straight into the input box (en -> zh)
+      tl.to("#hud-v", { opacity: 1, scale: 1, duration: 0.35, ease: "back.out(2)" }, 6.4)
+        .to("#in-src", { opacity: 0, duration: 0.25 }, 6.85)
+        .to("#in-dst", { opacity: 1, duration: 0.3 }, 6.95)
+        .to("#pop", { opacity: 0, y: -20, duration: 0.4 }, 7.2)
+        .to("#hud-v", { opacity: 0, duration: 0.3 }, 7.8);
+
+      // ↵: send -> the Chinese reply becomes a sent bubble
+      tl.to("#hud-enter", { opacity: 1, scale: 1, duration: 0.35, ease: "back.out(2)" }, 8.6)
+        .to("#in-dst", { opacity: 0, duration: 0.25 }, 8.9)
+        .to("#b-me", { opacity: 1, y: 0, scale: 1, duration: 0.5, ease: "back.out(1.3)" }, 9.0)
+        .to("#hud-enter", { opacity: 0, duration: 0.3 }, 10.0)
+        .to("#s2", { opacity: 0, duration: 0.45 }, 11.5);
+
+      gsap.set("#pop", { y: 36 });
+      gsap.set("#b-me", { y: 30, scale: 0.96 });
+      gsap.set(["#hud-y", "#hud-v", "#hud-enter"], { scale: 0.7 });
+
+      // Scene 3
+      tl.from("#s3", { opacity: 0, duration: 0.4 }, 12.1).from(
+        "#s3 .e",
+        { y: 34, opacity: 0, duration: 0.6, stagger: 0.16 },
+        12.3,
+      );
+
+      window.__timelines["main"] = tl;
+    </script>
+  </body>
+</html>
