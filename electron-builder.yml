@@ -9,6 +9,12 @@ files:
   - "!{.eslintcache,eslint.config.mjs,.prettierignore,.prettierrc.yaml,dev-app-update.yml,CHANGELOG.md,README.md}"
   - "!{.env,.env.*,.npmrc,pnpm-lock.yaml}"
   - "!{tsconfig.json,tsconfig.node.json,tsconfig.web.json}"
+  # Dev-only dirs/files that must never ship inside the app bundle
+  - "!.agents"
+  - "!.github"
+  - "!site"
+  - "!scripts"
+  - "!{components.json,skills-lock.json,vite.config.ts}"
 asarUnpack:
   - resources/**
 win:
