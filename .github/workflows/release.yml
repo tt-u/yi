@@ -79,3 +79,5 @@ jobs:
         with:
           draft: true
           files: artifacts/**/*
+          # Auto-generate the changelog from commits since the last tag
+          generate_release_notes: true
