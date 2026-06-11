@@ -12,6 +12,7 @@ import { useT } from "@/lib/i18n";
 import { SettingsManager } from "@/lib/settings";
 
 const PASTE_KEY = window.api?.platform === "darwin" ? "⌘V" : "Ctrl+V";
+const COPY_KEY = window.api?.platform === "darwin" ? "⌘C" : "Ctrl+C";
 
 type ViewState =
   | { kind: "empty" }
@@ -157,12 +158,12 @@ export default function Page() {
     return unsubscribe;
   }, [runQuery, t]);
 
-  // When auto-copy is off, ⌘C / ⌘V in the focused popup copies the translation.
+  // When auto-copy is off, ⌘C in the focused popup copies the translation.
   useEffect(() => {
     if (view.kind !== "result" || autoCopy || view.copied) return;
     const text = view.text;
     const onKey = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && (e.key === "c" || e.key === "v")) {
+      if ((e.metaKey || e.ctrlKey) && e.key === "c") {
         e.preventDefault();
         doCopy(text);
       }
@@ -268,7 +269,7 @@ export default function Page() {
                     className="mt-2.5 flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-xs font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
                   >
                     <Copy className="size-3" />
-                    {t("popup.copy", { key: PASTE_KEY })}
+                    {t("popup.copy", { key: COPY_KEY })}
                   </button>
                 )
               )}
