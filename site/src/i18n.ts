@@ -57,6 +57,7 @@ const messages: Record<Locale, Dict> = {
 
     "footer.tagline": "Translate anywhere, converse across languages.",
     "footer.madeWith": "Powered by DeepSeek · Built with Electron",
+    "footer.kami": "Design & skill inspired by Kami",
   },
   zh: {
     "nav.features": "功能",
@@ -104,6 +105,7 @@ const messages: Record<Locale, Dict> = {
 
     "footer.tagline": "随处翻译，跨语言对话。",
     "footer.madeWith": "由 DeepSeek 驱动 · 基于 Electron",
+    "footer.kami": "设计灵感与 skill 来自 Kami",
   },
 };
 

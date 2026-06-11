@@ -223,7 +223,15 @@ function Footer() {
           </a>
         </div>
         <p className="mt-2 text-xs text-muted-foreground">
-          {t("footer.madeWith")}
+          {t("footer.madeWith")} ·{" "}
+          <a
+            href="https://github.com/tw93/kami"
+            target="_blank"
+            rel="noreferrer"
+            className="underline-offset-4 hover:text-foreground hover:underline"
+          >
+            {t("footer.kami")}
+          </a>
         </p>
       </div>
     </footer>
