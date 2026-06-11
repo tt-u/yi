@@ -1,0 +1,266 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+      }
+      #root {
+        position: relative;
+        width: 1920px;
+        height: 1080px;
+        background: #f5f4ed;
+        color: #141413;
+        font-family: Charter, Georgia, "Songti SC", "STSong", serif;
+        overflow: hidden;
+      }
+      .scene {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      }
+      .ink {
+        color: #1b365d;
+      }
+      .muted {
+        color: #6b6a64;
+      }
+      .logo {
+        font-size: 200px;
+        font-weight: 600;
+        letter-spacing: -4px;
+        line-height: 1;
+        color: #1b365d;
+      }
+      .tag {
+        font-size: 58px;
+        margin-top: 28px;
+      }
+      .subtag {
+        font-size: 32px;
+        margin-top: 16px;
+        color: #6b6a64;
+      }
+      /* Scene 2: mock window + popup */
+      .win {
+        width: 1120px;
+        border-radius: 28px;
+        background: #faf9f5;
+        border: 1px solid #e3e0d4;
+        box-shadow: 0 40px 90px rgba(20, 20, 19, 0.14);
+        overflow: hidden;
+      }
+      .chrome {
+        display: flex;
+        gap: 12px;
+        padding: 22px 26px;
+        border-bottom: 1px solid #ece9df;
+      }
+      .dot {
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+      }
+      .stageArea {
+        position: relative;
+        padding: 70px 70px 120px;
+        background: #f1efe6;
+        min-height: 420px;
+      }
+      .msg {
+        position: relative;
+        display: inline;
+        font-size: 46px;
+        line-height: 1.5;
+      }
+      .hl {
+        position: absolute;
+        left: -8px;
+        top: -2px;
+        right: -8px;
+        bottom: -2px;
+        background: rgba(27, 54, 93, 0.16);
+        border-radius: 8px;
+        transform-origin: left center;
+      }
+      .popcard {
+        position: absolute;
+        right: 64px;
+        bottom: 60px;
+        width: 540px;
+        display: flex;
+        gap: 22px;
+        padding: 34px 40px 34px 34px;
+        background: #faf9f5;
+        border: 1px solid #e3e0d4;
+        border-radius: 26px;
+        box-shadow: 0 30px 60px rgba(20, 20, 19, 0.22);
+      }
+      .accent {
+        width: 5px;
+        align-self: stretch;
+        border-radius: 99px;
+        background: rgba(27, 54, 93, 0.7);
+      }
+      .trans {
+        font-size: 40px;
+        line-height: 1.4;
+        color: #141413;
+      }
+      .copied {
+        margin-top: 18px;
+        font-size: 26px;
+        font-weight: 600;
+        color: #1b365d;
+      }
+      .cap {
+        margin-top: 60px;
+        font-size: 40px;
+        color: #6b6a64;
+      }
+      .kbd {
+        font-family: "JetBrains Mono", ui-monospace, monospace;
+        font-size: 0.86em;
+        background: #faf9f5;
+        border: 1px solid #ddd9cc;
+        border-radius: 8px;
+        padding: 2px 12px;
+      }
+      /* Scene 3 */
+      .cta {
+        font-size: 52px;
+        margin-top: 36px;
+      }
+      .url {
+        font-size: 36px;
+        margin-top: 22px;
+        color: #6b6a64;
+        font-family: "JetBrains Mono", ui-monospace, monospace;
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-duration="12"
+      data-width="1920"
+      data-height="1080"
+    >
+      <!-- Scene 1 — logo -->
+      <div
+        id="s1"
+        class="clip scene"
+        data-start="0"
+        data-duration="3.2"
+        data-track-index="0"
+      >
+        <div id="s1-logo" class="logo">Yi</div>
+        <div id="s1-tag" class="tag">随处翻译，跨语言对话</div>
+        <div id="s1-sub" class="subtag">
+          Translate anywhere, converse across languages
+        </div>
+      </div>
+
+      <!-- Scene 2 — capture & translate -->
+      <div
+        id="s2"
+        class="clip scene"
+        data-start="3"
+        data-duration="5.2"
+        data-track-index="1"
+      >
+        <div class="win">
+          <div class="chrome">
+            <span class="dot" style="background: #e0573e"></span>
+            <span class="dot" style="background: #e3b341"></span>
+            <span class="dot" style="background: #3fb950"></span>
+          </div>
+          <div class="stageArea">
+            <span class="msg"
+              ><span id="s2-hl" class="hl"></span>Shall we grab lunch together
+              later?</span
+            >
+            <div id="s2-pop" class="popcard">
+              <span class="accent"></span>
+              <div>
+                <div class="trans">待会儿要不要一起去吃午饭？</div>
+                <div class="copied">已复制 · ⌘V 替换原文</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div id="s2-cap" class="cap">
+          选中外语 <span class="kbd">⌘Y</span> 秒出译文，<span class="kbd"
+            >⌘V</span
+          >
+          粘回对话
+        </div>
+      </div>
+
+      <!-- Scene 3 — download -->
+      <div
+        id="s3"
+        class="clip scene"
+        data-start="8"
+        data-duration="4"
+        data-track-index="2"
+      >
+        <div class="logo e">Yi</div>
+        <div class="cta ink e">免费下载 · macOS &amp; Windows</div>
+        <div class="url e">blockinsight.top/yi</div>
+      </div>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+
+      // Scene 1
+      tl.from("#s1-logo", { y: 50, opacity: 0, duration: 0.9 }, 0.1)
+        .from("#s1-tag", { y: 28, opacity: 0, duration: 0.7 }, 0.5)
+        .from("#s1-sub", { y: 20, opacity: 0, duration: 0.7 }, 0.75)
+        .to("#s1", { opacity: 0, duration: 0.5 }, 2.7);
+
+      // Scene 2
+      tl.from("#s2 .win", { y: 40, opacity: 0, duration: 0.8 }, 3.1)
+        .from("#s2-cap", { y: 24, opacity: 0, duration: 0.7 }, 3.4)
+        .fromTo(
+          "#s2-hl",
+          { scaleX: 0 },
+          { scaleX: 1, duration: 0.45, ease: "power2.out" },
+          4.0,
+        )
+        .from(
+          "#s2-pop",
+          { x: 70, opacity: 0, duration: 0.6, ease: "back.out(1.4)" },
+          4.7,
+        )
+        .to("#s2", { opacity: 0, duration: 0.5 }, 7.7);
+
+      // Scene 3
+      tl.from("#s3", { opacity: 0, duration: 0.4 }, 8.1).from(
+        "#s3 .e",
+        { y: 36, opacity: 0, duration: 0.7, stagger: 0.18 },
+        8.3,
+      );
+
+      window.__timelines["main"] = tl;
+    </script>
+  </body>
+</html>

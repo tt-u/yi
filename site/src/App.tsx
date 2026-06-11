@@ -104,42 +104,22 @@ function Hero() {
   );
 }
 
-/** Product showcase. CSS mock of the capture popup now; the HyperFrames promo video drops in here later. */
+/** Product showcase — a HyperFrames-rendered promo video (see site/promo/). */
 function Showcase() {
   const t = useT();
+  const base = import.meta.env.BASE_URL;
   return (
     <section className="mx-auto max-w-5xl px-5 pb-20">
-      <div className="relative overflow-hidden rounded-2xl border border-border bg-card shadow-xl">
-        {/* faux window chrome */}
-        <div className="flex items-center gap-1.5 border-b border-border/60 px-4 py-3">
-          <span className="size-3 rounded-full bg-[#e0573e]" />
-          <span className="size-3 rounded-full bg-[#e3b341]" />
-          <span className="size-3 rounded-full bg-[#3fb950]" />
-        </div>
-        <div className="relative min-h-[300px] bg-muted/40 p-8 sm:p-12">
-          {/* the source text being "selected" */}
-          <p className="max-w-md text-lg leading-relaxed">
-            <span className="rounded bg-primary/15 box-decoration-clone px-1 py-0.5">
-              {t("showcase.demoText")}
-            </span>
-          </p>
-
-          {/* the Yi popup card floating by the cursor */}
-          <div className="mt-8 w-[340px] max-w-full rounded-2xl border border-border bg-card shadow-2xl sm:absolute sm:right-12 sm:bottom-12 sm:mt-0">
-            <div className="flex gap-3.5 py-4 pr-6 pl-5">
-              <span className="mt-0.5 w-0.5 shrink-0 self-stretch rounded-full bg-primary/70" />
-              <div className="min-w-0 flex-1">
-                <p className="text-[15px] leading-relaxed text-foreground">
-                  {t("showcase.demoResult")}
-                </p>
-                <div className="mt-2.5 flex items-center gap-1 text-xs font-medium text-primary">
-                  <ClipboardCheck className="size-3" />
-                  {t("showcase.copied")}
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+      <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-xl">
+        <video
+          className="block w-full"
+          src={`${base}promo.mp4`}
+          poster={`${base}promo-poster.jpg`}
+          autoPlay
+          muted
+          loop
+          playsInline
+        />
       </div>
       <p className="mt-4 text-center text-sm text-muted-foreground">
         {t("showcase.caption")}
