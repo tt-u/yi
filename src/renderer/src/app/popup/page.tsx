@@ -32,10 +32,13 @@ export default function Page() {
   const abortRef = useRef<AbortController | null>(null);
   const cardRef = useRef<HTMLDivElement>(null);
 
-  // Manual copy (when auto-copy is off): write to clipboard and mark as copied.
+  // Manual copy (when auto-copy is off): write to clipboard, show "copied",
+  // then close the popup so focus returns to the source app — the user can ⌘V
+  // straight into the chat without clicking back first.
   const doCopy = useCallback((text: string) => {
     window.api.clipboard.write(text);
     setView((v) => (v.kind === "result" ? { ...v, copied: true } : v));
+    window.setTimeout(() => window.api.popup.hide(), 650);
   }, []);
 
   // Transparent window background + disable page scrolling (window height is matched to content via resize)
