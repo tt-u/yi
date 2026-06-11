@@ -1,5 +1,9 @@
 appId: com.yi.translator
 productName: Yi
+# Keep only the locales we ship; drops ~200 unused Chromium locale packs (~47MB)
+electronLanguages:
+  - en
+  - zh_CN
 directories:
   buildResources: build
 files:
