@@ -2,17 +2,17 @@
 
 随处翻译，跨语言对话。在任意应用选中文字按一个快捷键，DeepSeek 的地道译文就浮现在光标旁；译文自动复制，`⌘V` 直接粘回对话。
 
-<video src="https://github.com/tt-u/yi/raw/main/site/public/promo.mp4" poster="https://github.com/tt-u/yi/raw/main/site/public/promo-poster.jpg" controls muted width="720"></video>
+![Yi 演示](https://github.com/tt-u/yi/raw/main/docs/promo.gif)
 
-> 在线预览与下载 👉 **https://blockinsight.top/yi**
+> 在线预览（含视频）与下载 👉 **https://blockinsight.top/yi**
 
 ## 下载
 
-| 平台 | 安装包 |
-| --- | --- |
+| 平台               | 安装包                                                                                                       |
+| ------------------ | ------------------------------------------------------------------------------------------------------------ |
 | macOS · Apple 芯片 | [Yi-macOS-Apple-Silicon.dmg](https://github.com/tt-u/yi/releases/latest/download/Yi-macOS-Apple-Silicon.dmg) |
-| macOS · Intel | [Yi-macOS-Intel.dmg](https://github.com/tt-u/yi/releases/latest/download/Yi-macOS-Intel.dmg) |
-| Windows | [Yi-Windows-x64-Setup.exe](https://github.com/tt-u/yi/releases/latest/download/Yi-Windows-x64-Setup.exe) |
+| macOS · Intel      | [Yi-macOS-Intel.dmg](https://github.com/tt-u/yi/releases/latest/download/Yi-macOS-Intel.dmg)                 |
+| Windows            | [Yi-Windows-x64-Setup.exe](https://github.com/tt-u/yi/releases/latest/download/Yi-Windows-x64-Setup.exe)     |
 
 macOS 已签名 + 公证，双击即可打开；Windows 若 SmartScreen 拦截，点「更多信息 → 仍要运行」。
 

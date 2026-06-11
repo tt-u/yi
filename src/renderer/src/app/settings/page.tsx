@@ -416,6 +416,34 @@ export default function Page() {
           </button>
         </div>
 
+        {/* auto-copy toggle */}
+        <div className="flex items-center justify-between gap-4">
+          <div className="min-w-0">
+            <p className="text-sm font-medium">{t("autoCopy.title")}</p>
+            <p className="text-xs text-muted-foreground">
+              {t("autoCopy.hint")}
+            </p>
+          </div>
+          <button
+            type="button"
+            role="switch"
+            aria-checked={settings.autoCopy}
+            aria-label={t("autoCopy.title")}
+            onClick={() =>
+              setSettings((s) => ({ ...s, autoCopy: !s.autoCopy }))
+            }
+            className={`relative h-6 w-11 shrink-0 rounded-full transition-colors ${
+              settings.autoCopy ? "bg-primary" : "bg-input"
+            }`}
+          >
+            <span
+              className={`absolute top-0.5 left-0.5 size-5 rounded-full bg-background shadow transition-transform ${
+                settings.autoCopy ? "translate-x-5" : ""
+              }`}
+            />
+          </button>
+        </div>
+
         {/* macOS permission */}
         {IS_MAC && selStatus && (
           <div className="flex items-center justify-between gap-4">

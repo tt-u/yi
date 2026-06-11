@@ -1,4 +1,4 @@
-import { Check, Loader2, Settings2, X } from "lucide-react";
+import { Check, Copy, Loader2, Settings2, X } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -27,8 +27,15 @@ type ViewState =
 export default function Page() {
   const t = useT();
   const [view, setView] = useState<ViewState>({ kind: "empty" });
+  const [autoCopy, setAutoCopy] = useState(true);
   const abortRef = useRef<AbortController | null>(null);
   const cardRef = useRef<HTMLDivElement>(null);
+
+  // Manual copy (when auto-copy is off): write to clipboard and mark as copied.
+  const doCopy = useCallback((text: string) => {
+    window.api.clipboard.write(text);
+    setView((v) => (v.kind === "result" ? { ...v, copied: true } : v));
+  }, []);
 
   // Transparent window background + disable page scrolling (window height is matched to content via resize)
   useEffect(() => {
@@ -65,6 +72,7 @@ export default function Page() {
       abortRef.current = controller;
 
       const settings = SettingsManager.load();
+      setAutoCopy(settings.autoCopy);
       const useRelay =
         settings.translationSource === "relay" && RELAY_AVAILABLE;
       if (!useRelay && !settings.deepseekApiKey) {
@@ -99,13 +107,18 @@ export default function Page() {
               onDelta,
             });
         if (controller.signal.aborted) return;
-        // Write the translation to the clipboard so the user can ⌘V to replace the original in the source app
-        if (full) {
+        // Auto-copy (default): write to clipboard + arm ⌘V to close & replay the
+        // paste into the source app. When off, the user copies manually in the popup.
+        if (full && settings.autoCopy) {
           window.api.clipboard.write(full);
-          // Arm paste-watching: the next ⌘/Ctrl+V closes the popup and is replayed into the source app
           window.api.popup.copied();
         }
-        setView({ kind: "result", text: full, streaming: false, copied: true });
+        setView({
+          kind: "result",
+          text: full,
+          streaming: false,
+          copied: settings.autoCopy,
+        });
       } catch (err) {
         if (controller.signal.aborted) return;
         setView({
@@ -143,6 +156,20 @@ export default function Page() {
     window.api.popup.ready();
     return unsubscribe;
   }, [runQuery, t]);
+
+  // When auto-copy is off, ⌘C / ⌘V in the focused popup copies the translation.
+  useEffect(() => {
+    if (view.kind !== "result" || autoCopy || view.copied) return;
+    const text = view.text;
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && (e.key === "c" || e.key === "v")) {
+        e.preventDefault();
+        doCopy(text);
+      }
+    };
+    window.addEventListener("keydown", onKey, true);
+    return () => window.removeEventListener("keydown", onKey, true);
+  }, [view, autoCopy, doCopy]);
 
   return (
     // p-3 leaves room for the shadow (window is transparent, shadow drawn inside); ref on the outermost element to measure height including padding
@@ -226,11 +253,24 @@ export default function Page() {
                   <span className="ml-0.5 inline-block h-4 w-px animate-pulse bg-primary align-text-bottom" />
                 )}
               </p>
-              {view.copied && (
+              {view.copied ? (
                 <div className="mt-2.5 flex items-center gap-1 text-xs font-medium text-primary">
                   <Check className="size-3" />
-                  {t("popup.copied", { key: PASTE_KEY })}
+                  {autoCopy
+                    ? t("popup.copied", { key: PASTE_KEY })
+                    : t("popup.copyDone")}
                 </div>
+              ) : (
+                !view.streaming && (
+                  <button
+                    type="button"
+                    onClick={() => doCopy(view.text)}
+                    className="mt-2.5 flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-xs font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+                  >
+                    <Copy className="size-3" />
+                    {t("popup.copy", { key: PASTE_KEY })}
+                  </button>
+                )
               )}
             </div>
           </div>

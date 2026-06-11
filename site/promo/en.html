@@ -280,7 +280,9 @@
                   ></span
                 ></span
               >
-              <span id="in-dst" class="intext">好啊，老地方见，中午十二点！</span>
+              <span id="in-dst" class="intext"
+                >好啊，老地方见，中午十二点！</span
+              >
             </div>
             <div class="sendbtn">↑</div>
           </div>
@@ -315,7 +317,15 @@
       window.__timelines = window.__timelines || {};
       const tl = gsap.timeline({ paused: true });
       gsap.set(
-        ["#b-me", "#in-dst", "#pop", "#hud-sel", "#hud-y", "#hud-v", "#hud-enter"],
+        [
+          "#b-me",
+          "#in-dst",
+          "#pop",
+          "#hud-sel",
+          "#hud-y",
+          "#hud-v",
+          "#hud-enter",
+        ],
         { opacity: 0 },
       );
       gsap.set("#sel", { scaleX: 0 });
@@ -333,26 +343,50 @@
       tl.from("#s2 .chat", { y: 40, opacity: 0, duration: 0.7 }, 2.5);
 
       // 0) select the typed text
-      tl.to("#hud-sel", { opacity: 1, scale: 1, duration: 0.35, ease: "back.out(2)" }, 3.2)
+      tl.to(
+        "#hud-sel",
+        { opacity: 1, scale: 1, duration: 0.35, ease: "back.out(2)" },
+        3.2,
+      )
         .to("#sel", { scaleX: 1, duration: 0.45, ease: "power2.out" }, 3.45)
         .to("#hud-sel", { opacity: 0, duration: 0.3 }, 4.4);
 
       // 1) ⌘Y: translate the selection -> Yi shows the Chinese translation
-      tl.to("#hud-y", { opacity: 1, scale: 1, duration: 0.35, ease: "back.out(2)" }, 4.5)
-        .to("#pop", { opacity: 1, y: 0, duration: 0.5, ease: "back.out(1.4)" }, 4.8)
+      tl.to(
+        "#hud-y",
+        { opacity: 1, scale: 1, duration: 0.35, ease: "back.out(2)" },
+        4.5,
+      )
+        .to(
+          "#pop",
+          { opacity: 1, y: 0, duration: 0.5, ease: "back.out(1.4)" },
+          4.8,
+        )
         .to("#hud-y", { opacity: 0, duration: 0.3 }, 6.0);
 
       // 2) ⌘V: paste the translation into the input box (en -> zh)
-      tl.to("#hud-v", { opacity: 1, scale: 1, duration: 0.35, ease: "back.out(2)" }, 6.8)
+      tl.to(
+        "#hud-v",
+        { opacity: 1, scale: 1, duration: 0.35, ease: "back.out(2)" },
+        6.8,
+      )
         .to("#in-src", { opacity: 0, duration: 0.25 }, 7.2)
         .to("#in-dst", { opacity: 1, duration: 0.3 }, 7.3)
         .to("#pop", { opacity: 0, y: -20, duration: 0.4 }, 7.5)
         .to("#hud-v", { opacity: 0, duration: 0.3 }, 8.1);
 
       // 3) ↵: send -> the Chinese reply becomes a sent bubble
-      tl.to("#hud-enter", { opacity: 1, scale: 1, duration: 0.35, ease: "back.out(2)" }, 8.9)
+      tl.to(
+        "#hud-enter",
+        { opacity: 1, scale: 1, duration: 0.35, ease: "back.out(2)" },
+        8.9,
+      )
         .to("#in-dst", { opacity: 0, duration: 0.25 }, 9.2)
-        .to("#b-me", { opacity: 1, y: 0, scale: 1, duration: 0.5, ease: "back.out(1.3)" }, 9.3)
+        .to(
+          "#b-me",
+          { opacity: 1, y: 0, scale: 1, duration: 0.5, ease: "back.out(1.3)" },
+          9.3,
+        )
         .to("#hud-enter", { opacity: 0, duration: 0.3 }, 10.4);
 
       window.__timelines["main"] = tl;

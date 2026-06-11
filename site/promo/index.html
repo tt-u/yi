@@ -292,19 +292,23 @@
         <div id="pop" class="popcard">
           <span class="accent"></span>
           <div>
-            <div class="trans">Sure — let's meet at the usual spot at noon!</div>
+            <div class="trans">
+              Sure — let's meet at the usual spot at noon!
+            </div>
             <div class="copied">已复制 · ⌘V 粘到输入框</div>
           </div>
         </div>
 
         <div id="hud-sel" class="hud">
-          <span class="keycap">选中</span><span class="hud-label">选中要翻译的文字</span>
+          <span class="keycap">选中</span
+          ><span class="hud-label">选中要翻译的文字</span>
         </div>
         <div id="hud-y" class="hud">
           <span class="keycap">⌘Y</span><span class="hud-label">取词翻译</span>
         </div>
         <div id="hud-v" class="hud">
-          <span class="keycap">⌘V</span><span class="hud-label">粘到对话框</span>
+          <span class="keycap">⌘V</span
+          ><span class="hud-label">粘到对话框</span>
         </div>
         <div id="hud-enter" class="hud">
           <span class="keycap">↵</span><span class="hud-label">发送</span>
@@ -316,7 +320,15 @@
       window.__timelines = window.__timelines || {};
       const tl = gsap.timeline({ paused: true });
       gsap.set(
-        ["#b-me", "#in-en", "#pop", "#hud-sel", "#hud-y", "#hud-v", "#hud-enter"],
+        [
+          "#b-me",
+          "#in-en",
+          "#pop",
+          "#hud-sel",
+          "#hud-y",
+          "#hud-v",
+          "#hud-enter",
+        ],
         { opacity: 0 },
       );
       gsap.set("#sel", { scaleX: 0 });
@@ -334,26 +346,50 @@
       tl.from("#s2 .chat", { y: 40, opacity: 0, duration: 0.7 }, 2.5);
 
       // 0) select the typed text
-      tl.to("#hud-sel", { opacity: 1, scale: 1, duration: 0.35, ease: "back.out(2)" }, 3.2)
+      tl.to(
+        "#hud-sel",
+        { opacity: 1, scale: 1, duration: 0.35, ease: "back.out(2)" },
+        3.2,
+      )
         .to("#sel", { scaleX: 1, duration: 0.45, ease: "power2.out" }, 3.45)
         .to("#hud-sel", { opacity: 0, duration: 0.3 }, 4.4);
 
       // 1) ⌘Y: capture the selection -> Yi shows the English translation
-      tl.to("#hud-y", { opacity: 1, scale: 1, duration: 0.35, ease: "back.out(2)" }, 4.5)
-        .to("#pop", { opacity: 1, y: 0, duration: 0.5, ease: "back.out(1.4)" }, 4.8)
+      tl.to(
+        "#hud-y",
+        { opacity: 1, scale: 1, duration: 0.35, ease: "back.out(2)" },
+        4.5,
+      )
+        .to(
+          "#pop",
+          { opacity: 1, y: 0, duration: 0.5, ease: "back.out(1.4)" },
+          4.8,
+        )
         .to("#hud-y", { opacity: 0, duration: 0.3 }, 6.0);
 
       // 2) ⌘V: paste the translation into the input box (zh -> en)
-      tl.to("#hud-v", { opacity: 1, scale: 1, duration: 0.35, ease: "back.out(2)" }, 6.8)
+      tl.to(
+        "#hud-v",
+        { opacity: 1, scale: 1, duration: 0.35, ease: "back.out(2)" },
+        6.8,
+      )
         .to("#in-zh", { opacity: 0, duration: 0.25 }, 7.2)
         .to("#in-en", { opacity: 1, duration: 0.3 }, 7.3)
         .to("#pop", { opacity: 0, y: -20, duration: 0.4 }, 7.5)
         .to("#hud-v", { opacity: 0, duration: 0.3 }, 8.1);
 
       // 3) ↵: send -> the English reply becomes a sent bubble
-      tl.to("#hud-enter", { opacity: 1, scale: 1, duration: 0.35, ease: "back.out(2)" }, 8.9)
+      tl.to(
+        "#hud-enter",
+        { opacity: 1, scale: 1, duration: 0.35, ease: "back.out(2)" },
+        8.9,
+      )
         .to("#in-en", { opacity: 0, duration: 0.25 }, 9.2)
-        .to("#b-me", { opacity: 1, y: 0, scale: 1, duration: 0.5, ease: "back.out(1.3)" }, 9.3)
+        .to(
+          "#b-me",
+          { opacity: 1, y: 0, scale: 1, duration: 0.5, ease: "back.out(1.3)" },
+          9.3,
+        )
         .to("#hud-enter", { opacity: 0, duration: 0.3 }, 10.4);
 
       window.__timelines["main"] = tl;

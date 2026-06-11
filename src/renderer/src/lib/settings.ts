@@ -17,6 +17,8 @@ export interface SettingsData {
   selectionEnabled: boolean;
   /** Capture shortcut (Electron accelerator format) */
   captureShortcut: string;
+  /** Auto-copy the translation to the clipboard (and arm ⌘V paste-back). Off = copy manually in the popup. */
+  autoCopy: boolean;
   /** Light/dark mode: light / dark / follow system */
   theme: ThemeMode;
   /** UI language (interface text), independent of the translation language pair */
@@ -33,6 +35,7 @@ const DEFAULTS: SettingsData = {
   langB: "en",
   selectionEnabled: true,
   captureShortcut: "CommandOrControl+Y",
+  autoCopy: true,
   theme: "system",
   locale:
     typeof navigator !== "undefined" &&

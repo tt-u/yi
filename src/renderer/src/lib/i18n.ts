@@ -60,6 +60,9 @@ const messages: Record<Locale, Record<string, string>> = {
     "usage.after": "shows / hides this window.",
 
     "settings.saved": "Changes are saved automatically",
+    "autoCopy.title": "Auto-copy translation",
+    "autoCopy.hint":
+      "Copy automatically and paste back with ⌘V. Off: copy manually in the popup.",
 
     "theme.light": "Light",
     "theme.dark": "Dark",
@@ -72,6 +75,8 @@ const messages: Record<Locale, Record<string, string>> = {
     "popup.noKey": "No API key configured yet",
     "popup.settings": "Settings",
     "popup.copied": "Copied. {key} to replace",
+    "popup.copy": "Copy (or {key})",
+    "popup.copyDone": "Copied!",
     "popup.networkError": "Network error. Please try again.",
 
     "error.no-selection":
@@ -143,6 +148,8 @@ const messages: Record<Locale, Record<string, string>> = {
     "usage.after": "显示 / 隐藏本窗口。",
 
     "settings.saved": "更改已自动保存",
+    "autoCopy.title": "自动复制译文",
+    "autoCopy.hint": "自动复制并可用 ⌘V 粘回原处；关闭后在弹窗里手动复制。",
 
     "theme.light": "浅色",
     "theme.dark": "深色",
@@ -155,6 +162,8 @@ const messages: Record<Locale, Record<string, string>> = {
     "popup.noKey": "尚未配置 API Key",
     "popup.settings": "设置",
     "popup.copied": "已复制，{key} 替换原文",
+    "popup.copy": "复制（或按 {key}）",
+    "popup.copyDone": "复制成功",
     "popup.networkError": "网络错误，请重试。",
 
     "error.no-selection": "没有选中文字。请先选中文字，再按快捷键。",
