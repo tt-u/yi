@@ -67,7 +67,7 @@ export default function Page() {
     ro.observe(el);
     report();
     return () => ro.disconnect();
-  });
+  }, []);
 
   const runQuery = useCallback(
     async (text: string) => {
